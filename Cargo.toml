@@ -1,0 +1,31 @@
+[package]
+name = "life_traveler"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+item = { path = "item" }
+block = { path = "block" }
+chunk = { path = "chunk" }
+region = { path = "region" }
+world = { path = "world" }
+core = { path = "core" }
+register = { path = "register" }
+
+[build-dependencies]
+regex = "1.10.2"
+walkdir = "2.4.0"
+
+[workspace]
+
+members = [
+    "item",
+    "block",
+    "chunk",
+    "region",
+    "world",
+    "register",
+    "core"
+]
