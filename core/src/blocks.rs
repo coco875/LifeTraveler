@@ -29,6 +29,7 @@ pub mod StoneBlock {
 #[register(Block)]
 pub mod DirtBlock {
     use super::*;
+
     pub fn load(b: Block) -> SimpleBlock {
         let mut b = SimpleBlock::new(b);
         b.name = NAME;

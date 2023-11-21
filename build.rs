@@ -6,6 +6,7 @@ use walkdir::WalkDir;
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=core/");
+    println!("cargo:rerun-if-changed=Cargo.lock");
     let current_dir = env::current_dir().unwrap_or_else(|_| panic!("Failed to get current dir"));
 
     let file_outpath = Path::new(&current_dir).join("register").join("src").join("blocks.rs");
@@ -42,9 +43,13 @@ fn main() {
             continue;
         }
 
+        if path_str.contains("git") {
+            continue;
+        }
+
         if path_str.ends_with(".rs") {
             let file_name = fs::read_to_string(path).unwrap();
-            let re = Regex::new(r"#\[register\(Block\)\]\npub mod (\w+)").unwrap();
+            let re = Regex::new(r"#\[register\(Block\)\][\n\r]*pub mod (\w+)").unwrap();
             for cap in re.captures_iter(&file_name) {
                 file_block_str.push_str(&format!("pub use {}::{};\n", lib_path, &cap[1]));
                 block_register.push(cap[1].to_string());
