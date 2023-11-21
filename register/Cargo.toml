@@ -10,3 +10,5 @@ block = { path = "../block" }
 item = { path = "../item" }
 core = { path = "../core" }
 macro_register = { path = "../macro_reg" }
+twox-hash = "1.6.3"
+phf = { version = "0.11", features = ["macros"] }

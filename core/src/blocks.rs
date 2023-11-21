@@ -1,6 +1,6 @@
 use block::Block;
 use block::SimpleBlock;
-use macro_register::register;
+use macro_register::{register, add_tag};
 
 #[register(Block)]
 pub mod AirBlock {
@@ -8,18 +8,19 @@ pub mod AirBlock {
 
     pub static NAME: &str = "Air";
 
-    pub fn new(b: Block) -> SimpleBlock {
-        let mut b = SimpleBlock::new(b);
+    pub fn new(mut b: SimpleBlock) -> SimpleBlock {
         b.name = NAME;
         b
     }
 
-    pub fn load(b: Block) -> SimpleBlock {
-        let mut b = SimpleBlock::new(b);
+    pub fn load(mut b: SimpleBlock) -> SimpleBlock {
         b.name = NAME;
         b
     }
 }
+
+add_tag!(AirBlock, "can_collide", "false");
+add_tag!(AirBlock, "can_render", "false");
 
 #[register(Block)]
 pub mod StoneBlock {
@@ -30,8 +31,7 @@ pub mod StoneBlock {
 pub mod DirtBlock {
     use super::*;
 
-    pub fn load(b: Block) -> SimpleBlock {
-        let mut b = SimpleBlock::new(b);
+    pub fn load(mut b: SimpleBlock) -> SimpleBlock {
         b.name = NAME;
         b
     }
