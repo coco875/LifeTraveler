@@ -1,14 +1,15 @@
 {
     "rust-analyzer.linkedProjects": [
-        ".\\block\\Cargo.toml",
-        ".\\item\\Cargo.toml",
-        ".\\chunk\\Cargo.toml",
-        ".\\world\\Cargo.toml",
-        ".\\region\\Cargo.toml",
-        ".\\macro_reg\\Cargo.toml",
-        ".\\core\\Cargo.toml",
-        ".\\register\\Cargo.toml",
-        ".\\core\\Cargo.toml"
+        "./Cargo.toml",
+        "./block/Cargo.toml",
+        "./item/Cargo.toml",
+        "./chunk/Cargo.toml",
+        "./world/Cargo.toml",
+        "./region/Cargo.toml",
+        "./macro_reg/Cargo.toml",
+        "./core/Cargo.toml",
+        "./register/Cargo.toml",
+        "./core/Cargo.toml"
     ],
     "rust-analyzer.showUnlinkedFileNotification": false
 }

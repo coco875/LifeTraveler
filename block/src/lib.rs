@@ -22,18 +22,21 @@ impl Block {
 pub struct SimpleBlock {
     pub block: Block,
     pub var: HashMap<String, *mut c_void, BuildHasherDefault<XxHash64>>,
-    pub name: String,
+    pub name: &'static str,
+    pub to_block: fn(&mut SimpleBlock) -> &Block,
     pub tick: fn(&mut SimpleBlock),
 }
 
 pub fn empty_fn(_: &mut SimpleBlock) {}
+pub fn empty_block(s: &mut SimpleBlock) -> &Block { &s.block }
 
 impl SimpleBlock {
     pub fn new(block: Block) -> Self {
         SimpleBlock {
             block,
             var: Default::default(),
-            name: String::new(),
+            name: "",
+            to_block: empty_block,
             tick: empty_fn
         }
     }

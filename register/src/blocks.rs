@@ -12,6 +12,6 @@ pub static REGISTER_BLOCK: &[fn(Block) -> SimpleBlock] = &[
     DirtBlock::load,		// 2
 ];
 
-pub const AIRBLOCK_ID: i32 = 0;
-pub const STONEBLOCK_ID: i32 = 1;
-pub const DIRTBLOCK_ID: i32 = 2;
+pub const AIRBLOCK_ID: u16 = 0;
+pub const STONEBLOCK_ID: u16 = 1;
+pub const DIRTBLOCK_ID: u16 = 2;
