@@ -58,23 +58,40 @@ fn main() {
 
     let mut n = 0;
 
-    for i in block_register {
-        file_block.write_all(format!("    {}::new,{}// {}\n", i, "\t".repeat(4-((i.len()+2)/4)),n).as_bytes()).unwrap();
+    for i in &block_register {
+        file_block.write_all(format!("    {}::load,{}// {}\n", i, "\t".repeat(4-((i.len()+2)/4)),n).as_bytes()).unwrap();
         n += 1;
     }
 
-    file_block.write_all("];\n".as_bytes()).unwrap();
+    file_block.write_all("];\n\n".as_bytes()).unwrap();
+
+    n = 0;
+
+    for i in &block_register {
+        file_block.write_all(format!("pub const {}_ID: i32 = {};\n", i.to_uppercase(), n).as_bytes()).unwrap();
+        n += 1;
+    }
 
     file_item.write_all("\npub static REGISTER_ITEM: &[fn(Item) -> SimpleItem] = &[\n".as_bytes()).unwrap();
 
     n = 0;
 
-    for i in item_register {
-        file_item.write_all(format!("    {}::new,{}// {}\n", i, "\t".repeat(4-((i.len()+2)/4)),n).as_bytes()).unwrap();
+    for i in &item_register {
+        file_item.write_all(format!("    {}::load,{}// {}\n", i, "\t".repeat(4-((i.len())/4)),n).as_bytes()).unwrap();
         n += 1;
     }
 
-    file_item.write_all("];\n".as_bytes()).unwrap();
+    file_item.write_all("];\n\n".as_bytes()).unwrap();
+
+    n = 0;
+
+    for i in &item_register {
+        file_item.write_all(format!("pub const {}_ID: i32 = {};\n", i.to_uppercase(), n).as_bytes()).unwrap();
+        n += 1;
+    }
+
+    file_block.flush().unwrap();
+    file_item.flush().unwrap();
 
     
     println!("cargo:rerun-if-changed=.");

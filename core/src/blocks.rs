@@ -5,7 +5,7 @@ use macro_register::register;
 #[register(Block)]
 pub mod AirBlock {
     use super::*;
-    pub fn new(b: Block) -> SimpleBlock {
+    pub fn load(b: Block) -> SimpleBlock {
         let mut b = SimpleBlock::new(b);
         b.name = String::from("Air");
         b
@@ -15,7 +15,7 @@ pub mod AirBlock {
 #[register(Block)]
 pub mod StoneBlock {
     use super::*;
-    pub fn new(b: Block) -> SimpleBlock {
+    pub fn load(b: Block) -> SimpleBlock {
         let mut b = SimpleBlock::new(b);
         b.name = String::from("Stone");
         b
@@ -25,7 +25,7 @@ pub mod StoneBlock {
 #[register(Block)]
 pub mod DirtBlock {
     use super::*;
-    pub fn new(b: Block) -> SimpleBlock {
+    pub fn load(b: Block) -> SimpleBlock {
         let mut b = SimpleBlock::new(b);
         b.name = String::from("Dirt");
         b

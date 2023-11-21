@@ -5,3 +5,4 @@ use item::SimpleItem;
 
 pub static REGISTER_ITEM: &[fn(Item) -> SimpleItem] = &[
 ];
+

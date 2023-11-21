@@ -7,7 +7,11 @@ pub use core::blocks::StoneBlock;
 pub use core::blocks::DirtBlock;
 
 pub static REGISTER_BLOCK: &[fn(Block) -> SimpleBlock] = &[
-    AirBlock::new,		// 0
-    StoneBlock::new,	// 1
-    DirtBlock::new,		// 2
+    AirBlock::load,		// 0
+    StoneBlock::load,	// 1
+    DirtBlock::load,		// 2
 ];
+
+pub const AIRBLOCK_ID: i32 = 0;
+pub const STONEBLOCK_ID: i32 = 1;
+pub const DIRTBLOCK_ID: i32 = 2;
