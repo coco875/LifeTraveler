@@ -20,7 +20,7 @@ impl Block {
 
 pub struct SimpleBlock {
     pub block: Block,
-    pub tags: &'static phf::Map<&'static str, &'static str>,
+    pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
     pub var: HashMap<String, *mut c_void, BuildHasherDefault<XxHash64>>,
     pub name: &'static str,
     pub to_block: fn(&mut SimpleBlock) -> &Block,
@@ -31,7 +31,7 @@ pub fn empty_fn(_: &mut SimpleBlock) {}
 pub fn empty_block(s: &mut SimpleBlock) -> &Block { &s.block }
 
 impl SimpleBlock {
-    pub fn new(block: Block, name: &'static str, tags: &'static phf::Map<&'static str, &'static str>) -> Self {
+    pub fn new(block: Block, name: &'static str, tags: &'static quickphf::PhfMap<&'static str, &'static str>) -> Self {
         SimpleBlock {
             block,
             tags,

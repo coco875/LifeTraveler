@@ -15,8 +15,9 @@ core = { path = "core" }
 register = { path = "register" }
 
 [build-dependencies]
-regex = "1.10.2"
-walkdir = "2.4.0"
+regex = "*"
+walkdir = "*"
+quickphf_codegen = "*"
 
 [workspace]
 

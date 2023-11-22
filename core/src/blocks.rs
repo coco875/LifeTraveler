@@ -9,12 +9,10 @@ pub mod AirBlock {
     pub static NAME: &str = "Air";
 
     pub fn new(mut b: SimpleBlock) -> SimpleBlock {
-        b.name = NAME;
         b
     }
 
     pub fn load(mut b: SimpleBlock) -> SimpleBlock {
-        b.name = NAME;
         b
     }
 }
@@ -32,7 +30,6 @@ pub mod DirtBlock {
     use super::*;
 
     pub fn load(mut b: SimpleBlock) -> SimpleBlock {
-        b.name = NAME;
         b
     }
 }

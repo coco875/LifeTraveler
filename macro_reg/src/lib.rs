@@ -19,14 +19,12 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let load_function = quote! {
         pub fn load(mut b: SimpleBlock) -> SimpleBlock {
-            b.name = NAME;
             b
         }
     };
 
     let new_function = quote! {
         pub fn new(mut b: SimpleBlock) -> SimpleBlock {
-            b.name = NAME;
             b
         }
     };
@@ -38,9 +36,14 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let allow_non_snake_case: syn::Attribute = parse_quote! {
         #[allow(non_snake_case)]
     };
+
+    let allow_non_used_mut: syn::Attribute = parse_quote! {
+        #[allow(unused_mut)]
+    };
     // let mut text = String::from("#[allow(non_snake_case)]\n");
     // text = text + &item.to_string();
     input.attrs.push(allow_non_snake_case);
+    input.attrs.push(allow_non_used_mut);
 
     let re = Regex::new(r"pub *\n* *fn *\n* *load").unwrap();
 
