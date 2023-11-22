@@ -17,21 +17,24 @@ pub static AIRBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::qui
     &[0, 0, 0, 0],
     &[("can_collide", "false"), ("can_render", "false")],
     &[0]
-)
+);
+
 pub const STONEBLOCK_ID: u16 = 1;
 pub static STONEBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     0,
     &[0],
     &[],
     &[0]
-)
+);
+
 pub const DIRTBLOCK_ID: u16 = 2;
 pub static DIRTBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     0,
     &[0],
     &[],
     &[0]
-)
+);
+
 
 pub static REGISTER_BLOCK: &[RegisterBlock] = &[
     RegisterBlock {new: AirBlock::new, load: AirBlock::load, tags: AIRBLOCK_TAGS, name: AirBlock::NAME},

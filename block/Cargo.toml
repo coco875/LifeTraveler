@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 item = { path = "../item" }
 twox-hash = "1.6.3"
-quick_phf = "*"
+quickphf = "*"
