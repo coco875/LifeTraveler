@@ -6,18 +6,23 @@ use syn::ItemMod;
 use syn::Item;
 use syn::parse_quote;
 use regex::Regex;
+use convert_case::{Case, Casing};
 
 #[proc_macro_attribute]
 pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let re = Regex::new(r"pub *\n* *mod *\n* *(\w+)").unwrap();
     let binding = &item.to_string();
     let mut binding = re.captures(binding).unwrap()[1].to_string();
-    binding = binding.replace(&_attr.to_string(), "");
-    let name = &binding;
+
+    let kind_register = _attr.to_string();
+    let kind_register = kind_register.split(",").collect::<Vec<&str>>()[0];
+
+    binding = binding.replace(kind_register, "");
+    let name = &binding.to_case(Case::Snake);
     
     let mut input = parse_macro_input!(item as ItemMod);
     
-    let mut _type = quote::format_ident!("Simple{}", &_attr.to_string());
+    let mut _type = quote::format_ident!("Simple{}", kind_register);
 
     let load_function = quote! {
         pub fn load(mut b: #_type) -> #_type {
@@ -71,6 +76,10 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
     );
 
     TokenStream::from(code)
+}
+#[proc_macro_attribute]
+pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    register(_attr, item)
 }
 
 #[proc_macro]

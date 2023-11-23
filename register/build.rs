@@ -84,7 +84,7 @@ fn write_header_item() -> String {
 }
 
 fn capture_register_item(file_content: &str, file_str: &mut String, item_register: &mut Vec<String>, lib_path: &str) {
-    let re = Regex::new(r"#\[register\(Item\)\]\npub mod (\w+)").unwrap();
+    let re = Regex::new(r"#\[register\(Item\)\][\n\r]*pub mod (\w+)").unwrap();
     for cap in re.captures_iter(&file_content) {
         file_str.push_str(&format!("pub use {}::{};\n", lib_path, &cap[1]));
         item_register.push(cap[1].to_string());
@@ -139,8 +139,7 @@ fn write_item_file(file_str: &str) {
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=core/");
-    println!("cargo:rerun-if-changed=Cargo.lock");
+    println!("cargo:rerun-if-changed=../core/");
 
     let mut file_block_str = write_header_block();
 
@@ -159,13 +158,14 @@ fn main() {
         let path_without_filename = path.parent().unwrap();
         let path_str = path.to_str().unwrap();
 
-        let mut lib_path = path_str.replace("src\\", "");
-        lib_path = lib_path.replace("src/", "");
-        lib_path = lib_path.replace(".\\", "");
-        lib_path = lib_path.replace("../", "");
-        lib_path = lib_path.replace(".rs", "");
-        lib_path = lib_path.replace("\\", "::");
-        lib_path = lib_path.replace("/", "::");
+        let lib_path = path_str.replace("src\\", "")
+            .replace("..\\", "")
+            .replace(".\\", "")
+            .replace("\\", "::")
+            .replace("src/", "")
+            .replace("../", "")
+            .replace(".rs", "")
+            .replace("/", "::");
         
         if path_str.contains("target") {
             continue;
@@ -183,13 +183,9 @@ fn main() {
 
             let re = Regex::new(r####"add_tag!\((\w+), "(\w+)", "(\w+)"\);"####).unwrap();
             for cap in re.captures_iter(&file_content) {
-                if lib_path.to_lowercase().contains("blocks") {
-                    let tags = tags.entry(cap[1].to_string()).or_insert(vec![]);
-                    tags.push((cap[2].to_string(), cap[3].to_string()));
-                } else if lib_path.to_lowercase().contains("items") {
-                    let tags = tags.entry(cap[1].to_string()).or_insert(vec![]);
-                    tags.push((cap[2].to_string(), cap[3].to_string()));
-                }
+                tags.entry(cap[1].to_string())
+                    .or_insert(vec![])
+                    .push((cap[2].to_string(), cap[3].to_string()));
             }
 
             let re = Regex::new(r####"add_tag_from_file!\((\w+), "([\w_.]+)"\);"####).unwrap();

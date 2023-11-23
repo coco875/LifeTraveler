@@ -10,6 +10,7 @@ regex = "*"
 syn = { version = "*", features = ["full"] }
 quote = "*"
 proc-macro2 = "1.0"
+convert_case = "*"
 
 [lib]
 proc-macro = true

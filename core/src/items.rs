@@ -1,5 +1,10 @@
 use item::SimpleItem;
-use macro_register::{register, add_tag, add_tag_from_file};
+use macro_register::{
+    register, 
+    add_tag, 
+    add_tag_from_file, 
+    register_complement
+};
 
 #[register(Item)]
 pub mod StoneItem {
@@ -25,3 +30,16 @@ pub mod DirtItem {
 }
 
 add_tag_from_file!(DirtItem, "dirt_item_tags.json");
+
+#[register(Item)]
+pub mod IronIngotItem {
+    use super::*;
+    pub static COLOR: &str = "#eeeeee";
+}
+
+add_tag!(IronIngotItem, "material", "ore");
+
+#[register_complement(Item, "material" == "ore")]
+pub mod OreItem {
+    use super::*;
+}
