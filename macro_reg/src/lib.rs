@@ -10,21 +10,23 @@ use regex::Regex;
 #[proc_macro_attribute]
 pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let re = Regex::new(r"pub *\n* *mod *\n* *(\w+)").unwrap();
-    let mut binding = item.to_string();
-    binding = re.captures(&binding).unwrap()[1].to_string();
+    let binding = &item.to_string();
+    let mut binding = re.captures(binding).unwrap()[1].to_string();
     binding = binding.replace(&_attr.to_string(), "");
     let name = &binding;
-
+    
     let mut input = parse_macro_input!(item as ItemMod);
+    
+    let mut _type = quote::format_ident!("Simple{}", &_attr.to_string());
 
     let load_function = quote! {
-        pub fn load(mut b: SimpleBlock) -> SimpleBlock {
+        pub fn load(mut b: #_type) -> #_type {
             b
         }
     };
 
     let new_function = quote! {
-        pub fn new(mut b: SimpleBlock) -> SimpleBlock {
+        pub fn new(mut b: #_type) -> #_type {
             b
         }
     };
@@ -73,5 +75,10 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn add_tag(_item: TokenStream) -> TokenStream {
+    "".parse().unwrap()
+}
+
+#[proc_macro]
+pub fn add_tag_from_file(_item: TokenStream) -> TokenStream {
     "".parse().unwrap()
 }

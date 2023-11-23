@@ -8,7 +8,27 @@ pub struct RegisterItem {
         pub name: &'static str,
     }
 
+pub use core::items::StoneItem;
+pub use core::items::DirtItem;
+pub const STONEITEM_ID: i32 = 0;
+pub static STONEITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+    4294967296,
+    &[0, 0, 0, 0],
+    &[("can_collide", "true"), ("can_render", "true")],
+    &[0]
+);
+
+pub const DIRTITEM_ID: i32 = 1;
+pub static DIRTITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+    4294967296,
+    &[0, 0, 0, 0],
+    &[("can_collide", "true"), ("can_render", "true")],
+    &[0]
+);
+
 
 pub static REGISTER_ITEM: &[RegisterItem] = &[
+    RegisterItem {new: StoneItem::new, load: StoneItem::load, tags: STONEITEM_TAGS, name: StoneItem::NAME},
+    RegisterItem {new: DirtItem::new, load: DirtItem::load, tags: DIRTITEM_TAGS, name: DirtItem::NAME},
 ];
 

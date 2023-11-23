@@ -1,3 +1,4 @@
+use core::panic;
 use std::{path::Path, vec, io::Write, collections::HashMap};
 use regex::Regex;
 use std::{env, fs};
@@ -110,13 +111,11 @@ fn write_static_itemdata(file_str: &mut String, item_register: &Vec<String>, tag
     }
 }
 
-fn write_register_item(file_str: &mut String, item_register: &Vec<String>, tags: &HashMap<String, Vec<(String,String)>>) {
-    let mut n = 0;
+fn write_register_item(file_str: &mut String, item_register: &Vec<String>) {
     file_str.push_str("\npub static REGISTER_ITEM: &[RegisterItem] = &[\n");
     
     for i in item_register {
-        file_str.push_str(&format!("    {}::load,{}// {}\n", i, "\t".repeat(4-((i.len())/4)),n));
-        n += 1;
+        file_str.push_str(&format!("    RegisterItem {{new: {}::new, load: {}::load, tags: {}_TAGS, name: {}::NAME}},\n", i, i, i.to_uppercase(), i));
     }
     
     file_str.push_str("];\n\n");
@@ -157,6 +156,7 @@ fn main() {
         .filter_map(Result::ok)
         .filter(|e| !e.file_type().is_dir()) {
         let path = entry.path();
+        let path_without_filename = path.parent().unwrap();
         let path_str = path.to_str().unwrap();
 
         let mut lib_path = path_str.replace("src\\", "");
@@ -191,6 +191,21 @@ fn main() {
                     tags.push((cap[2].to_string(), cap[3].to_string()));
                 }
             }
+
+            let re = Regex::new(r####"add_tag_from_file!\((\w+), "([\w_.]+)"\);"####).unwrap();
+            for cap in re.captures_iter(&file_content) {
+                let tags = tags.entry(cap[1].to_string()).or_insert(vec![]);
+                let file_content = fs::read_to_string(path_without_filename.join(cap[2].to_string()));
+                let file_content = match file_content {
+                    Ok(file_content) => file_content,
+                    Err(_) => panic!("File not found: {}", path_without_filename.join(cap[2].to_string()).to_string_lossy()),
+                };
+                
+                let re = Regex::new(r####""*([\w_]+)"* *: *"*(\w+)"*"####).unwrap();
+                for cap in re.captures_iter(&file_content) {
+                    tags.push((cap[1].to_string(), cap[2].to_string()));
+                }
+            }
         }
     }
     
@@ -199,6 +214,6 @@ fn main() {
     write_block_file(&mut file_block_str);
 
     write_static_itemdata(&mut file_item_str, &item_register, &tags);
-    write_register_item(&mut file_item_str, &item_register, &tags);
+    write_register_item(&mut file_item_str, &item_register);
     write_item_file(&mut file_item_str)
 }

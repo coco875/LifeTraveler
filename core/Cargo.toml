@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 block ={ path = "../block" }
+item ={ path = "../item" }
 macro_register ={ path = "../macro_reg" }

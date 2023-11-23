@@ -1,4 +1,3 @@
-use block::Block;
 use block::SimpleBlock;
 use macro_register::{register, add_tag};
 
