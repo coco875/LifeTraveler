@@ -26,19 +26,24 @@ impl Item {
 
 pub struct SimpleItem {
     pub item: Item,
+    pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
     pub var: HashMap<String, *mut c_void, BuildHasherDefault<XxHash64>>,
-    pub name: String,
+    pub name: &'static str,
+    pub to_block: fn(&mut SimpleItem) -> &Item,
     pub tick: fn(&mut SimpleItem),
 }
 
 pub fn empty_fn(_: &mut SimpleItem) {}
+pub fn empty_item(s: &mut SimpleItem) -> &Item { &s.item }
 
 impl SimpleItem {
-    pub fn new(item: Item) -> Self {
+    pub fn new(item: Item, name: &'static str, tags: &'static quickphf::PhfMap<&'static str, &'static str>) -> Self {
         SimpleItem {
             item,
+            tags,
             var: Default::default(),
-            name: String::new(),
+            name,
+            to_block: empty_item,
             tick: empty_fn
         }
     }

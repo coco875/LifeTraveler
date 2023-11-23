@@ -14,11 +14,6 @@ world = { path = "world" }
 core = { path = "core" }
 register = { path = "register" }
 
-[build-dependencies]
-regex = "*"
-walkdir = "*"
-quickphf_codegen = "*"
-
 [workspace]
 
 members = [

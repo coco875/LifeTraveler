@@ -12,3 +12,8 @@ core = { path = "../core" }
 macro_register = { path = "../macro_reg" }
 twox-hash = "1.6.3"
 quickphf = "*"
+
+[build-dependencies]
+regex = "*"
+walkdir = "*"
+quickphf_codegen = "*"

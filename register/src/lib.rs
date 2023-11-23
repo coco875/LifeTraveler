@@ -1,7 +1,11 @@
-pub mod blocks;
+pub mod blocks {
+    include!(concat!(env!("OUT_DIR"), "/blocks.rs"));
+}
 use block::Block;
 use block::SimpleBlock;
-pub mod items;
+pub mod items {
+    include!(concat!(env!("OUT_DIR"), "/items.rs"));
+}
 use item::Item;
 use item::SimpleItem;
 
@@ -19,9 +23,14 @@ pub fn create_block(id: i32) -> SimpleBlock {
 }
 
 pub fn load_item(item: Item) -> SimpleItem {
-    items::REGISTER_ITEM.get(item.id as usize).unwrap()(item)
+    let r = items::REGISTER_ITEM.get(item.id as usize).unwrap();
+    let sb = SimpleItem::new(item, r.name, r.tags);
+    (r.load)(sb)
 }
 
 pub fn create_item(id: i32) -> SimpleItem {
-    load_item(Item { data: 0, id: id as u16 })
+    let b = Item { data: 0, id: id as u16 };
+    let r = items::REGISTER_ITEM.get(id as usize).unwrap();
+    let sb = SimpleItem::new(b, r.name, r.tags);
+    (r.new)(sb)
 }

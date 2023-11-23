@@ -56,11 +56,17 @@ fn write_register_block(file_str: &mut String, block_register: &Vec<String>) {
 
 fn write_block_file(file_str: &str) {
     let path = env::current_dir().unwrap();
-    let file_outpath = Path::new(&path).join("register").join("src").join("blocks.rs");
+    let file_outpath = Path::new(&path).join("src").join("blocks.rs");
 
     let mut file_block = fs::File::create(file_outpath).unwrap();
     file_block.write_all(file_str.as_bytes()).unwrap();
     file_block.flush().unwrap();
+
+    let path = Path::new(&env::var("OUT_DIR").unwrap()).join("blocks.rs");
+    let mut file_item = fs::File::create(path).unwrap();
+    file_item.write_all(file_str.as_bytes()).unwrap();
+
+    file_item.flush().unwrap();
 }
 
 fn write_header_item() -> String {
@@ -118,9 +124,15 @@ fn write_register_item(file_str: &mut String, item_register: &Vec<String>, tags:
 
 fn write_item_file(file_str: &str) {
     let path = env::current_dir().unwrap();
-    let file_outpath = Path::new(&path).join("register").join("src").join("items.rs");
+    let file_outpath = Path::new(&path).join("src").join("items.rs");
 
     let mut file_item = fs::File::create(file_outpath).unwrap();
+    file_item.write_all(file_str.as_bytes()).unwrap();
+
+    file_item.flush().unwrap();
+
+    let path = Path::new(&env::var("OUT_DIR").unwrap()).join("items.rs");
+    let mut file_item = fs::File::create(path).unwrap();
     file_item.write_all(file_str.as_bytes()).unwrap();
 
     file_item.flush().unwrap();
@@ -140,7 +152,7 @@ fn main() {
 
     let mut tags: HashMap<String, Vec<(String,String)>> = HashMap::new();
 
-    for entry in WalkDir::new(".")
+    for entry in WalkDir::new("..")
         .into_iter()
         .filter_map(Result::ok)
         .filter(|e| !e.file_type().is_dir()) {
@@ -150,7 +162,7 @@ fn main() {
         let mut lib_path = path_str.replace("src\\", "");
         lib_path = lib_path.replace("src/", "");
         lib_path = lib_path.replace(".\\", "");
-        lib_path = lib_path.replace("./", "");
+        lib_path = lib_path.replace("../", "");
         lib_path = lib_path.replace(".rs", "");
         lib_path = lib_path.replace("\\", "::");
         lib_path = lib_path.replace("/", "::");
@@ -188,5 +200,5 @@ fn main() {
 
     write_static_itemdata(&mut file_item_str, &item_register, &tags);
     write_register_item(&mut file_item_str, &item_register, &tags);
-    write_item_file(&mut file_block_str)
+    write_item_file(&mut file_item_str)
 }

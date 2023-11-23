@@ -12,5 +12,8 @@
         "./core/Cargo.toml"
     ],
     "rust-analyzer.showUnlinkedFileNotification": false,
-    "rust-analyzer.diagnostics.disabled": ["non_snake_case", "unresolved-proc-macro", "unused_mut"]
+    "rust-analyzer.diagnostics.disabled": ["non_snake_case", "unresolved-proc-macro", "unused_mut"],
+    "[rust]": {
+        "editor.semanticHighlighting.enabled": false
+    }
 }
