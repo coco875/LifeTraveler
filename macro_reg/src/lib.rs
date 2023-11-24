@@ -106,8 +106,8 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
     for value in list_values {
         println!("{}", value);
         let mut text = text.clone();
-        text = text.replace("value", value);
         text = text.replace("Value", &value.to_case(Case::Pascal));
+        text = text.replace("value", value);
         result = result + &text+"\n";
     }
     println!("{}", result);
