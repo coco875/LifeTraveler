@@ -88,14 +88,10 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
     while !path.ends_with("LifeTraveler") {
         path = path.parent().unwrap().to_path_buf();
     }
-    println!("path: {}", path.to_str().unwrap());
     let name = _attr.to_string().split(", ").collect::<Vec<&str>>()[1].replace('"', "");
-    println!("name: {}", name);
     let file_outpath = Path::new(&path).join("tags_output").join(format!("{}.txt", name));
-    println!("file: {}", file_outpath.to_str().unwrap());
     // open file
     let mut file = fs::File::open(&file_outpath).unwrap();
-    print!("content: ");
     // read file
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
@@ -104,13 +100,11 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
     let text = item.to_string();
     let mut result = String::new();
     for value in list_values {
-        println!("{}", value);
         let mut text = text.clone();
         text = text.replace("Value", &value.to_case(Case::Pascal));
         text = text.replace("value", value);
         result = result + &text+"\n";
     }
-    println!("{}", result);
     result.parse().unwrap()
 }
 

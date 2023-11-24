@@ -44,7 +44,6 @@ pub static IRON_ORE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &
     &[0, 0]
 );
 
-
 pub static REGISTER_ITEM: &[RegisterItem] = &[
     RegisterItem {new: StoneItem::new, load: StoneItem::load, tags: STONE_ITEM_TAGS, name: StoneItem::NAME},
     RegisterItem {new: DirtItem::new, load: DirtItem::load, tags: DIRT_ITEM_TAGS, name: DirtItem::NAME},
