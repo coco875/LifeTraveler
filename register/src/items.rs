@@ -2,11 +2,11 @@
 use item::SimpleItem;
 
 pub struct RegisterItem {
-        pub new: fn(SimpleItem) -> SimpleItem,
-        pub load: fn(SimpleItem) -> SimpleItem,
-        pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
-        pub name: &'static str,
-    }
+    pub new: fn(SimpleItem) -> SimpleItem,
+    pub load: fn(SimpleItem) -> SimpleItem,
+    pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
+    pub name: &'static str,
+}
 
 pub use core::items::StoneItem;
 pub use core::items::DirtItem;

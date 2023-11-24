@@ -2,11 +2,11 @@
 use block::SimpleBlock;
 
 pub struct RegisterBlock {
-        pub new: fn(SimpleBlock) -> SimpleBlock,
-        pub load: fn(SimpleBlock) -> SimpleBlock,
-        pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
-        pub name: &'static str,
-    }
+    pub new: fn(SimpleBlock) -> SimpleBlock,
+    pub load: fn(SimpleBlock) -> SimpleBlock,
+    pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
+    pub name: &'static str,
+}
 
 pub use core::blocks::AirBlock;
 pub use core::blocks::StoneBlock;
