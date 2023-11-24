@@ -11,34 +11,44 @@ pub struct RegisterItem {
 pub use core::items::StoneItem;
 pub use core::items::DirtItem;
 pub use core::items::IronIngotItem;
-pub const STONEITEM_ID: i32 = 0;
-pub static STONEITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+pub use core::items::IronOreItem;
+pub const STONE_ITEM_ID: i32 = 0;
+pub static STONE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
     &[0, 0, 0, 0],
     &[("can_collide", "true"), ("can_render", "true")],
     &[0]
 );
 
-pub const DIRTITEM_ID: i32 = 1;
-pub static DIRTITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+pub const DIRT_ITEM_ID: i32 = 1;
+pub static DIRT_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
     &[0, 0, 0, 0],
     &[("can_collide", "true"), ("can_render", "true")],
     &[0]
 );
 
-pub const IRONINGOTITEM_ID: i32 = 2;
-pub static IRONINGOTITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+pub const IRON_INGOT_ITEM_ID: i32 = 2;
+pub static IRON_INGOT_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
     &[0, 0, 0, 0],
     &[("materialtype", "ingot"), ("material", "iron")],
     &[1]
 );
 
+pub const IRON_ORE_ITEM_ID: i32 = 3;
+pub static IRON_ORE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+    4294967296,
+    &[0],
+    &[("material", "iron")],
+    &[0, 0]
+);
+
 
 pub static REGISTER_ITEM: &[RegisterItem] = &[
-    RegisterItem {new: StoneItem::new, load: StoneItem::load, tags: STONEITEM_TAGS, name: StoneItem::NAME},
-    RegisterItem {new: DirtItem::new, load: DirtItem::load, tags: DIRTITEM_TAGS, name: DirtItem::NAME},
-    RegisterItem {new: IronIngotItem::new, load: IronIngotItem::load, tags: IRONINGOTITEM_TAGS, name: IronIngotItem::NAME},
+    RegisterItem {new: StoneItem::new, load: StoneItem::load, tags: STONE_ITEM_TAGS, name: StoneItem::NAME},
+    RegisterItem {new: DirtItem::new, load: DirtItem::load, tags: DIRT_ITEM_TAGS, name: DirtItem::NAME},
+    RegisterItem {new: IronIngotItem::new, load: IronIngotItem::load, tags: IRON_INGOT_ITEM_TAGS, name: IronIngotItem::NAME},
+    RegisterItem {new: IronOreItem::new, load: IronOreItem::load, tags: IRON_ORE_ITEM_TAGS, name: IronOreItem::NAME},
 ];
 

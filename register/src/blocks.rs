@@ -2,33 +2,33 @@
 use block::SimpleBlock;
 
 pub struct RegisterBlock {
-    pub new: fn(SimpleBlock) -> SimpleBlock,
-    pub load: fn(SimpleBlock) -> SimpleBlock,
-    pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
-    pub name: &'static str,
-}
+        pub new: fn(SimpleBlock) -> SimpleBlock,
+        pub load: fn(SimpleBlock) -> SimpleBlock,
+        pub tags: &'static quickphf::PhfMap<&'static str, &'static str>,
+        pub name: &'static str,
+    }
 
 pub use core::blocks::AirBlock;
 pub use core::blocks::StoneBlock;
 pub use core::blocks::DirtBlock;
-pub const AIRBLOCK_ID: u16 = 0;
-pub static AIRBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+pub const AIR_BLOCK_ID: i32 = 0;
+pub static AIR_BLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
     &[0, 0, 0, 0],
     &[("can_collide", "false"), ("can_render", "false")],
     &[0]
 );
 
-pub const STONEBLOCK_ID: u16 = 1;
-pub static STONEBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+pub const STONE_BLOCK_ID: i32 = 1;
+pub static STONE_BLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     0,
     &[0],
     &[],
     &[0]
 );
 
-pub const DIRTBLOCK_ID: u16 = 2;
-pub static DIRTBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
+pub const DIRT_BLOCK_ID: i32 = 2;
+pub static DIRT_BLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     0,
     &[0],
     &[],
@@ -37,8 +37,8 @@ pub static DIRTBLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::qu
 
 
 pub static REGISTER_BLOCK: &[RegisterBlock] = &[
-    RegisterBlock {new: AirBlock::new, load: AirBlock::load, tags: AIRBLOCK_TAGS, name: AirBlock::NAME},
-    RegisterBlock {new: StoneBlock::new, load: StoneBlock::load, tags: STONEBLOCK_TAGS, name: StoneBlock::NAME},
-    RegisterBlock {new: DirtBlock::new, load: DirtBlock::load, tags: DIRTBLOCK_TAGS, name: DirtBlock::NAME},
+    RegisterBlock {new: AirBlock::new, load: AirBlock::load, tags: AIR_BLOCK_TAGS, name: AirBlock::NAME},
+    RegisterBlock {new: StoneBlock::new, load: StoneBlock::load, tags: STONE_BLOCK_TAGS, name: StoneBlock::NAME},
+    RegisterBlock {new: DirtBlock::new, load: DirtBlock::load, tags: DIRT_BLOCK_TAGS, name: DirtBlock::NAME},
 ];
 

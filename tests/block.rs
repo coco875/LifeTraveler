@@ -23,6 +23,6 @@ mod tests {
         let mut block = Block::new();
         block.id = 2;
         let block = load_block(block);
-        assert_eq!(block.name, "Dirt");
+        assert_eq!(block.name, "dirt");
     }
 }

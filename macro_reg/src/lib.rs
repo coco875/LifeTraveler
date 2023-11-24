@@ -1,5 +1,9 @@
 use proc_macro::TokenStream;
 use quote::quote;
+use std::env;
+use std::fs;
+use std::io::Read;
+use std::path::Path;
 use quote::ToTokens;
 use syn::parse_macro_input;
 use syn::ItemMod;
@@ -79,7 +83,35 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 #[proc_macro_attribute]
 pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    register(_attr, item)
+    // get file at the source of the project
+    let mut path = env::current_dir().unwrap();
+    while !path.ends_with("LifeTraveler") {
+        path = path.parent().unwrap().to_path_buf();
+    }
+    println!("path: {}", path.to_str().unwrap());
+    let name = _attr.to_string().split(", ").collect::<Vec<&str>>()[1].replace('"', "");
+    println!("name: {}", name);
+    let file_outpath = Path::new(&path).join("tags_output").join(format!("{}.txt", name));
+    println!("file: {}", file_outpath.to_str().unwrap());
+    // open file
+    let mut file = fs::File::open(&file_outpath).unwrap();
+    print!("content: ");
+    // read file
+    let mut content = String::new();
+    file.read_to_string(&mut content).unwrap();
+    let list_values = content.split("\n").collect::<Vec<&str>>();
+    let item = register(_attr, item);
+    let text = item.to_string();
+    let mut result = String::new();
+    for value in list_values {
+        println!("{}", value);
+        let mut text = text.clone();
+        text = text.replace("value", value);
+        text = text.replace("Value", &value.to_case(Case::Pascal));
+        result = result + &text+"\n";
+    }
+    println!("{}", result);
+    result.parse().unwrap()
 }
 
 #[proc_macro]

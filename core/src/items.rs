@@ -40,7 +40,8 @@ pub mod IronIngotItem {
 add_tag!(IronIngotItem, "material", "iron");
 add_tag!(IronIngotItem, "materialtype", "ingot");
 
-#[register_complement("material")]
-pub mod OreItem {
+#[register_complement(Item,"material")]
+pub mod ValueOreItem {
     use super::*;
+    pub static NAME: &str = "value_ore";
 }
