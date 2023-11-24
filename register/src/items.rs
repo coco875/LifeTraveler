@@ -30,9 +30,9 @@ pub static DIRTITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::qui
 pub const IRONINGOTITEM_ID: i32 = 2;
 pub static IRONINGOTITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
-    &[0],
-    &[("material", "ore")],
-    &[0, 0]
+    &[0, 0, 0, 0],
+    &[("materialtype", "ingot"), ("material", "iron")],
+    &[1]
 );
 
 

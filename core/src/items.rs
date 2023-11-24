@@ -37,9 +37,10 @@ pub mod IronIngotItem {
     pub static COLOR: &str = "#eeeeee";
 }
 
-add_tag!(IronIngotItem, "material", "ore");
+add_tag!(IronIngotItem, "material", "iron");
+add_tag!(IronIngotItem, "materialtype", "ingot");
 
-#[register_complement(Item, "material" == "ore")]
+#[register_complement("material")]
 pub mod OreItem {
     use super::*;
 }
