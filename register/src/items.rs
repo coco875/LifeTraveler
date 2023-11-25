@@ -39,10 +39,11 @@ pub static IRON_INGOT_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> =
 pub const IRON_ORE_ITEM_ID: i32 = 3;
 pub static IRON_ORE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
-    &[0],
-    &[("material", "iron")],
-    &[0, 0]
+    &[0, 0, 0, 0],
+    &[("materialtype", "ore"), ("material", "iron")],
+    &[1]
 );
+
 
 pub static REGISTER_ITEM: &[RegisterItem] = &[
     RegisterItem {new: StoneItem::new, load: StoneItem::load, tags: STONE_ITEM_TAGS, name: StoneItem::NAME},

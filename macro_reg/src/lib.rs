@@ -96,6 +96,7 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
     let list_values = content.split("\n").collect::<Vec<&str>>();
+    
     let item = register(_attr, item);
     let text = item.to_string();
     let mut result = String::new();

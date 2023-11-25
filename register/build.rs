@@ -112,35 +112,39 @@ fn write_output_file(file_str: &str, file_name: &str) {
     file_item.flush().unwrap();
 }
 
-fn capture_register_complement_block(file_content: &str, file_str: &mut String, block_register: &mut Vec<String>, lib_path: &str, tags_values: &HashMap<String, HashSet<String>>, tags: &mut HashMap<String, Vec<(String,String)>>) {
-    let re = Regex::new(r#"#\[register_complement\(Block,\"(\w+)\"\)\][\n\r]*pub mod (\w+)"#).unwrap();
+fn capture_register_complement_block(file_content: &str, file_str: &mut String, block_register: &mut Vec<String>, lib_path: &str, tags_values: &HashMap<String, HashSet<String>>, tags: &mut HashMap<String, Vec<(String,String)>>, after_tags_heritage: &mut Vec<(String, String)>) {
+    capture_register_complement_out(file_content, file_str, block_register, "Block", lib_path, tags_values, tags, after_tags_heritage);
+}
+
+fn capture_register_complement_item(file_content: &str, file_str: &mut String, item_register: &mut Vec<String>, lib_path: &str, tags_values: &HashMap<String, HashSet<String>>, tags: &mut HashMap<String, Vec<(String,String)>>, after_tags_heritage: &mut Vec<(String, String)>) {
+    capture_register_complement_out(file_content, file_str, item_register, "Item", lib_path, tags_values, tags, after_tags_heritage);
+}
+
+fn capture_register_complement_out(file_content: &str, file_str: &mut String, out_register: &mut Vec<String>, out_name: &str, lib_path: &str, tags_values: &HashMap<String, HashSet<String>>, tags: &mut HashMap<String, Vec<(String,String)>>, after_tags_heritage: &mut Vec<(String, String)>) {
+    let re = Regex::new(format!(r#"#\[register_complement\({},"(\w+)"\)\][\n\r]*pub mod (\w+)"#, out_name).as_str()).unwrap();
     for cap in re.captures_iter(&file_content) {
         let tag = cap[1].to_string();
-        let name = cap[2].to_string();
+        let original_name = cap[2].to_string();
         for tags_value in tags_values.get(&tag).unwrap() {
-            let name = name.replace("value", tags_value);
+            let name = &original_name.replace("value", tags_value);
+            let name = name.replace("Value", &tags_value.to_case(Case::Pascal));
             file_str.push_str(&format!("pub use {}::{};\n", lib_path, &name));
-            block_register.push(name.clone());
-            tags.entry(name)
+            out_register.push(name.clone());
+            tags.entry(name.clone())
                 .or_insert(vec![])
                 .push((tag.clone(), tags_value.clone()));
+            after_tags_heritage.push((name.clone(), original_name.clone()));
         }
     }
 }
 
-fn capture_register_complement_item(file_content: &str, file_str: &mut String, item_register: &mut Vec<String>, lib_path: &str, tags_values: &HashMap<String, HashSet<String>>, tags: &mut HashMap<String, Vec<(String,String)>>) {
-    let re = Regex::new(r#"#\[register_complement\(Item,\"(\w+)\"\)\][\n\r]*pub mod (\w+)"#).unwrap();
-    for cap in re.captures_iter(&file_content) {
-        let tag = cap[1].to_string();
-        let name = cap[2].to_string();
-        for tags_value in tags_values.get(&tag).unwrap() {
-            let name = name.replace("value", tags_value);
-            let name = name.replace("Value", &tags_value.to_case(Case::Pascal));
-            file_str.push_str(&format!("pub use {}::{};\n", lib_path, &name));
-            item_register.push(name.clone());
-            tags.entry(name)
+fn finish_tags_heritage(tags: &mut HashMap<String, Vec<(String,String)>>, after_tags_heritage: &mut Vec<(String, String)>) {
+    for (name, original_name) in after_tags_heritage {
+        let l = tags.get(original_name).unwrap().clone();
+        for (tag, value) in l {
+            tags.entry(name.clone())
                 .or_insert(vec![])
-                .push((tag.clone(), tags_value.clone()));
+                .push((tag.clone(), value.clone()));
         }
     }
 }
@@ -158,6 +162,8 @@ fn main() {
 
     let mut tags: HashMap<String, Vec<(String,String)>> = HashMap::new();
     let mut tags_values: HashMap<String, HashSet<String>> = HashMap::new();
+
+    let mut after_tags_heritage: Vec<(String, String)> = vec![];
 
     for entry in WalkDir::new("..")
         .into_iter()
@@ -215,10 +221,12 @@ fn main() {
                 }
             }
 
-            capture_register_complement_block(&file_content, &mut file_block_str, &mut block_register, &lib_path, &tags_values, &mut tags);
-            capture_register_complement_item(&file_content, &mut file_item_str, &mut item_register, &lib_path, &tags_values, &mut tags);
+            capture_register_complement_block(&file_content, &mut file_block_str, &mut block_register, &lib_path, &tags_values, &mut tags, &mut after_tags_heritage);
+            capture_register_complement_item(&file_content, &mut file_item_str, &mut item_register, &lib_path, &tags_values, &mut tags, &mut after_tags_heritage);
         }
     }
+
+    finish_tags_heritage(&mut tags, &mut after_tags_heritage);
 
     let path = Path::new("..");
     if path.join("tags_output").exists() {

@@ -45,3 +45,5 @@ pub mod ValueOreItem {
     use super::*;
     pub static NAME: &str = "value_ore";
 }
+
+add_tag!(ValueOreItem, "materialtype", "ore");
