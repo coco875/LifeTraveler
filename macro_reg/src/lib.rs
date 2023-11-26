@@ -1,16 +1,16 @@
+use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use quote::quote;
+use quote::ToTokens;
+use regex::Regex;
 use std::env;
 use std::fs;
 use std::io::Read;
 use std::path::Path;
-use quote::ToTokens;
 use syn::parse_macro_input;
-use syn::ItemMod;
-use syn::Item;
 use syn::parse_quote;
-use regex::Regex;
-use convert_case::{Case, Casing};
+use syn::Item;
+use syn::ItemMod;
 
 #[proc_macro_attribute]
 pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -23,9 +23,9 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     binding = binding.replace(kind_register, "");
     let name = &binding.to_case(Case::Snake);
-    
+
     let mut input = parse_macro_input!(item as ItemMod);
-    
+
     let mut _type = quote::format_ident!("Simple{}", kind_register);
 
     let load_function = quote! {
@@ -59,21 +59,35 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let re = Regex::new(r"pub *\n* *fn *\n* *load").unwrap();
 
     if !re.is_match(&input.to_token_stream().to_string()) {
-        input.content.as_mut().unwrap().1.push(Item::Verbatim(load_function));
+        input
+            .content
+            .as_mut()
+            .unwrap()
+            .1
+            .push(Item::Verbatim(load_function));
     }
 
     let re = Regex::new(r"pub *\n* *fn *\n* *new").unwrap();
 
     if !re.is_match(&input.to_token_stream().to_string()) {
-        input.content.as_mut().unwrap().1.push(Item::Verbatim(new_function));
+        input
+            .content
+            .as_mut()
+            .unwrap()
+            .1
+            .push(Item::Verbatim(new_function));
     }
 
     let re = Regex::new(r"pub *\n* *static *\n* *NAME").unwrap();
 
     if !re.is_match(&input.to_token_stream().to_string()) {
-        input.content.as_mut().unwrap().1.push(Item::Verbatim(name_variable));
+        input
+            .content
+            .as_mut()
+            .unwrap()
+            .1
+            .push(Item::Verbatim(name_variable));
     }
-
 
     let code = quote!(
           #input
@@ -89,14 +103,16 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
         path = path.parent().unwrap().to_path_buf();
     }
     let name = _attr.to_string().split(", ").collect::<Vec<&str>>()[1].replace('"', "");
-    let file_outpath = Path::new(&path).join("tags_output").join(format!("{}.txt", name));
+    let file_outpath = Path::new(&path)
+        .join("tags_output")
+        .join(format!("{}.txt", name));
     // open file
     let mut file = fs::File::open(&file_outpath).unwrap();
     // read file
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
     let list_values = content.split("\n").collect::<Vec<&str>>();
-    
+
     let item = register(_attr, item);
     let text = item.to_string();
     let mut result = String::new();
@@ -104,7 +120,7 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
         let mut text = text.clone();
         text = text.replace("Value", &value.to_case(Case::Pascal));
         text = text.replace("value", value);
-        result = result + &text+"\n";
+        result = result + &text + "\n";
     }
     result.parse().unwrap()
 }
@@ -116,5 +132,15 @@ pub fn add_tag(_item: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn add_tag_from_file(_item: TokenStream) -> TokenStream {
+    "".parse().unwrap()
+}
+
+#[proc_macro]
+pub fn add_lang(_item: TokenStream) -> TokenStream {
+    "".parse().unwrap()
+}
+
+#[proc_macro]
+pub fn add_lang_from_file(_item: TokenStream) -> TokenStream {
     "".parse().unwrap()
 }

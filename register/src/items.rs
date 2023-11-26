@@ -11,7 +11,6 @@ pub struct RegisterItem {
 pub use core::items::StoneItem;
 pub use core::items::DirtItem;
 pub use core::items::IronIngotItem;
-pub use core::items::IronOreItem;
 pub const STONE_ITEM_ID: i32 = 0;
 pub static STONE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,
@@ -36,19 +35,10 @@ pub static IRON_INGOT_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> =
     &[1]
 );
 
-pub const IRON_ORE_ITEM_ID: i32 = 3;
-pub static IRON_ORE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
-    4294967296,
-    &[0, 0, 0, 0],
-    &[("materialtype", "ore"), ("material", "iron")],
-    &[1]
-);
-
 
 pub static REGISTER_ITEM: &[RegisterItem] = &[
     RegisterItem {new: StoneItem::new, load: StoneItem::load, tags: STONE_ITEM_TAGS, name: StoneItem::NAME},
     RegisterItem {new: DirtItem::new, load: DirtItem::load, tags: DIRT_ITEM_TAGS, name: DirtItem::NAME},
     RegisterItem {new: IronIngotItem::new, load: IronIngotItem::load, tags: IRON_INGOT_ITEM_TAGS, name: IronIngotItem::NAME},
-    RegisterItem {new: IronOreItem::new, load: IronOreItem::load, tags: IRON_ORE_ITEM_TAGS, name: IronOreItem::NAME},
 ];
 

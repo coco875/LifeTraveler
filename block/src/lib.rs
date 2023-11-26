@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::ffi::c_void;
 use std::hash::BuildHasherDefault;
-use std::collections::HashMap;
 use twox_hash::XxHash64;
 
 pub struct Block {
@@ -28,27 +28,33 @@ pub struct SimpleBlock {
 }
 
 pub fn empty_fn(_: &mut SimpleBlock) {}
-pub fn empty_block(s: &mut SimpleBlock) -> &Block { &s.block }
+pub fn empty_block(s: &mut SimpleBlock) -> &Block {
+    &s.block
+}
 
 impl SimpleBlock {
-    pub fn new(block: Block, name: &'static str, tags: &'static quickphf::PhfMap<&'static str, &'static str>) -> Self {
+    pub fn new(
+        block: Block,
+        name: &'static str,
+        tags: &'static quickphf::PhfMap<&'static str, &'static str>,
+    ) -> Self {
         SimpleBlock {
             block,
             tags,
             var: Default::default(),
             name,
             to_block: empty_block,
-            tick: empty_fn
+            tick: empty_fn,
         }
     }
 
     pub fn set_var<T>(&mut self, name: String, value: T) {
-        self.var.insert(name, Box::into_raw(Box::new(value)) as *mut c_void);
+        self.var
+            .insert(name, Box::into_raw(Box::new(value)) as *mut c_void);
     }
 
     pub fn get_var<T>(&self, name: String) -> Option<*mut T> {
         let ptr = self.var.get(&name)?;
         Some(*ptr as *mut T)
     }
-
 }
