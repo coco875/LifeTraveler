@@ -18,3 +18,4 @@ Cargo.lock
 
 /target
 tags_output/*
+lang_output/*
