@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  beta:
     name: Build ${{ matrix.target }}
     runs-on: ubuntu-latest
     strategy:
