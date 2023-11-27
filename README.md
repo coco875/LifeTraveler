@@ -1,8 +1,14 @@
 # LifeTraveler
  A voxel game
 
-TODO: finish deploy gh-pages
+# Install
+```bash
+git clone https://github.com/coco875/LifeTraveler.git
+cd LifeTraveler
+cargo run --release
+```
 
-TODO: write the documentation of function
-
-TODO: write the readme
+# TODO
+- finish deploy gh-pages
+- write the documentation of function
+- write the readme
