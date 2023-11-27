@@ -9,4 +9,11 @@ edition = "2021"
 block ={ path = "../block" }
 item ={ path = "../item" }
 macro_register ={ path = "../macro_reg" }
-register ={ path = "../register" }
+quickphf = "*"
+
+[build-dependencies]
+regex = "*"
+walkdir = "*"
+quickphf_codegen = "*"
+itertools = "*"
+convert_case = "*"

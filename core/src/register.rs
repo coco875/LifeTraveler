@@ -1,11 +1,7 @@
-pub mod blocks {
-    include!(concat!(env!("OUT_DIR"), "/blocks.rs"));
-}
+pub mod blocks;
 use block::Block;
 use block::SimpleBlock;
-pub mod items {
-    include!(concat!(env!("OUT_DIR"), "/items.rs"));
-}
+pub mod items;
 use item::Item;
 use item::SimpleItem;
 

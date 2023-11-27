@@ -8,9 +8,9 @@ pub struct RegisterItem {
     pub name: &'static str,
 }
 
-pub use core::items::StoneItem;
-pub use core::items::DirtItem;
-pub use core::items::IronIngotItem;
+pub use crate::items::StoneItem;
+pub use crate::items::DirtItem;
+pub use crate::items::IronIngotItem;
 pub const STONE_ITEM_ID: i32 = 0;
 pub static STONE_ITEM_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,

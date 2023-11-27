@@ -164,15 +164,13 @@ fn write_item_file(file_str: &str) {
 
 fn write_output_file(file_str: &str, file_name: &str) {
     let path = env::current_dir().unwrap();
-    let file_outpath = Path::new(&path).join("src").join(file_name);
+    let path = Path::new(&path).join("src");
+    if !path.join("register").exists() {
+        fs::create_dir(path.join("register")).unwrap();
+    }
+    let file_outpath = path.join("register").join(file_name);
 
     let mut file_item = fs::File::create(file_outpath).unwrap();
-    file_item.write_all(file_str.as_bytes()).unwrap();
-
-    file_item.flush().unwrap();
-
-    let path = Path::new(&env::var("OUT_DIR").unwrap()).join(file_name);
-    let mut file_item = fs::File::create(path).unwrap();
     file_item.write_all(file_str.as_bytes()).unwrap();
 
     file_item.flush().unwrap();
@@ -270,7 +268,7 @@ fn finish_tags_heritage(
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=../core/");
+    println!("cargo:rerun-if-changed=.");
 
     let mut file_block_str = write_header_block();
 
@@ -305,7 +303,8 @@ fn main() {
             .replace("src/", "")
             .replace("../", "")
             .replace(".rs", "")
-            .replace("/", "::");
+            .replace("/", "::")
+            .replace("core", "crate");
 
         if path_str.ends_with(".rs") {
             let file_content = fs::read_to_string(path).unwrap();

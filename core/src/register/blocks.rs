@@ -8,9 +8,9 @@ pub struct RegisterBlock {
     pub name: &'static str,
 }
 
-pub use core::blocks::AirBlock;
-pub use core::blocks::StoneBlock;
-pub use core::blocks::DirtBlock;
+pub use crate::blocks::AirBlock;
+pub use crate::blocks::StoneBlock;
+pub use crate::blocks::DirtBlock;
 pub const AIR_BLOCK_ID: i32 = 0;
 pub static AIR_BLOCK_TAGS: &quickphf::PhfMap<&'static str, &'static str> = &::quickphf::PhfMap::new(
     4294967296,

@@ -12,7 +12,6 @@ chunk = { path = "chunk" }
 region = { path = "region" }
 world = { path = "world" }
 core = { path = "core" }
-register = { path = "register" }
 
 [workspace]
 
@@ -22,7 +21,6 @@ members = [
     "chunk",
     "region",
     "world",
-    "register",
     "lang",
     "core"
 ]

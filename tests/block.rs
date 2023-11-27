@@ -1,5 +1,5 @@
 use block::Block;
-use register::load_block;
+use core::register::load_block;
 
 #[cfg(test)]
 mod tests {
