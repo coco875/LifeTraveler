@@ -5,13 +5,13 @@ on:
     branches: [main]
 
 jobs:
-  release:
+  build:
     name: GitHub Pages
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
