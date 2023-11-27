@@ -19,7 +19,7 @@ pub mod AirBlock {
 add_tag!(AirBlock, "can_collide", "false");
 add_tag!(AirBlock, "can_render", "false");
 
-add_lang!(Fr, "air", "Air");
+add_lang!(Fr, "Air", "Air");
 
 #[register(Block)]
 pub mod StoneBlock {

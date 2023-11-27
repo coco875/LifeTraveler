@@ -9,3 +9,4 @@ edition = "2021"
 block ={ path = "../block" }
 item ={ path = "../item" }
 macro_register ={ path = "../macro_reg" }
+register ={ path = "../register" }
