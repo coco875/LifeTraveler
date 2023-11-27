@@ -1,5 +1,5 @@
 # LifeTraveler
- A voxel game
+ A voxel game inspired visually by Octopath Traveler and gameplay by Minecraft modded
 
 # Install
 ```bash
@@ -8,7 +8,12 @@ cd LifeTraveler
 cargo run --release
 ```
 
+# Documentation
+the documentation is available [here](https://coco875.github.io/LifeTraveler/life_traveler/index.html)
+
 # TODO
-- finish deploy gh-pages
-- write the documentation of function
-- write the readme
+- [ ] - write the documentation of function
+- [ ] - add recipe registry
+- [ ] - add entity registry
+- [ ] - make chunk and world save and load
+- [ ] - start making a GUI
