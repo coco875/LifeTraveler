@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["map","raw_map","set"],"struct":["PhfMap","PhfSet","RawPhfMap"]};

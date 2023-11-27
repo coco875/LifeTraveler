@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["aho_corasick","block","cfg_if","chunk","convert_case","core","getrandom","item","libc","life_traveler","macro_register","memchr","ppv_lite86","proc_macro2","quickdiv","quickphf","quote","rand","rand_chacha","rand_core","regex","regex_automata","regex_syntax","region","static_assertions","syn","twox_hash","unicode_ident","unicode_segmentation","world","wyhash"];
+window.ALL_CRATES = ["block","chunk","core","item","lang","life_traveler","macro_register","region","world"];
