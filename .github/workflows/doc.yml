@@ -1,38 +1,40 @@
 name: Rustdoc
 
 on:
-  schedule:
-    - cron: '0 * * * *'
-  push:
-    branches:
-      -  main
+    push:
+        branches:
+            - master
+    pull_request:
 
 jobs:
-  rustdoc:
-    name: Rustdoc
-    runs-on: macos-latest
+    release:
+        name: GitHub Pages
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: 'swc-project/swc'
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v1
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
+            - name: Install Rust toolchain
+              uses: actions-rs/toolchain@v1
+              with:
+                toolchain: stable
+                profile: minimal
+                override: true
+                components: rustfmt, rust-src
 
-      - name: Create rustdoc
-        run: cargo doc
+            - name: Build Documentation
+              uses: actions-rs/cargo@v1
+              with:
+                command: doc
+                args: --all --no-deps
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.8
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: target/doc
-          clean: true
-          git-config-email: bot@swc.rs
-          repository-name: swc-project/rustdoc
-          commit-message: "Update"
-          single-commit: true
+            - name: Deploy Documentation
+              env:
+                ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+                PUBLISH_BRANCH: gh-pages
+                PUBLISH_DIR: ./target/doc
+                SCRIPT_MODE: true
+              run: |
+                wget https://raw.githubusercontent.com/peaceiris/actions-gh-pages/v2.5.0/entrypoint.sh
+                bash ./entrypoint.sh
