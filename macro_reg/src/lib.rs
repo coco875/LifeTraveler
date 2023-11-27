@@ -135,7 +135,13 @@ pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream
         .join("tags_output")
         .join(format!("{}.txt", name));
     // open file
-    let mut file = fs::File::open(&file_outpath).unwrap();
+    println!("{:?}", file_outpath);
+    let mut file = fs::File::open(&file_outpath).unwrap_or_else(|e| {
+        panic!(
+            "no file found at {:?} with error: {}",
+            file_outpath, e
+        )
+    });
     // read file
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
