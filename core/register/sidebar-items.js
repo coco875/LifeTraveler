@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["create_block","create_item","load_block","load_item"],"mod":["blocks","items"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["register","register_complement"],"macro":["add_lang","add_lang_from_file","add_tag","add_tag_from_file"]};

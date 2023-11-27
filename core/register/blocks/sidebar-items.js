@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["AIR_BLOCK_ID","DIRT_BLOCK_ID","STONE_BLOCK_ID"],"static":["AIR_BLOCK_TAGS","DIRT_BLOCK_TAGS","REGISTER_BLOCK","STONE_BLOCK_TAGS"],"struct":["RegisterBlock"]};

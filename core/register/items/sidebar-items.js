@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DIRT_ITEM_ID","IRON_INGOT_ITEM_ID","STONE_ITEM_ID"],"static":["DIRT_ITEM_TAGS","IRON_INGOT_ITEM_TAGS","REGISTER_ITEM","STONE_ITEM_TAGS"],"struct":["RegisterItem"]};
