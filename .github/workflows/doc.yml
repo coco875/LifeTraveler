@@ -1,3 +1,5 @@
+name: Rustdoc
+
 on:
   schedule:
     - cron: '0 * * * *'
