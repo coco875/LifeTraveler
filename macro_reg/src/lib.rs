@@ -23,7 +23,7 @@ use syn::ItemMod;
 /// Functions:
 /// - load: this function is called when the game is loading the block, item, entity, etc...
 /// - new: this function is called when the game is creating the block, item, entity, etc...
-/// 
+///
 /// # Example
 /// ```rust
 /// #[register(Block)]
@@ -126,22 +126,18 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn register_complement(_attr: TokenStream, item: TokenStream) -> TokenStream {
     // get file at the source of the project
-    let mut path = env::current_dir().unwrap();
-    while !path.ends_with("LifeTraveler") {
-        path = path.parent().unwrap().to_path_buf();
-    }
+    let path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap())
+        .parent()
+        .unwrap()
+        .to_path_buf();
     let name = _attr.to_string().split(", ").collect::<Vec<&str>>()[1].replace('"', "");
     let file_outpath = Path::new(&path)
         .join("tags_output")
         .join(format!("{}.txt", name));
     // open file
     println!("{:?}", file_outpath);
-    let mut file = fs::File::open(&file_outpath).unwrap_or_else(|e| {
-        panic!(
-            "no file found at {:?} with error: {}",
-            file_outpath, e
-        )
-    });
+    let mut file = fs::File::open(&file_outpath)
+        .unwrap_or_else(|e| panic!("no file found at {:?} with error: {}", file_outpath, e));
     // read file
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();

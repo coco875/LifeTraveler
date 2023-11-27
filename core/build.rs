@@ -377,7 +377,10 @@ fn main() {
 
     finish_tags_heritage(&mut tags, &mut after_tags_heritage);
 
-    let path = Path::new("..");
+    let path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap())
+        .parent()
+        .unwrap()
+        .to_path_buf();
     if path.join("tags_output").exists() {
         fs::remove_dir_all(path.join("tags_output")).unwrap();
     }
