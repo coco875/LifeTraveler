@@ -1,0 +1,36 @@
+on:
+  schedule:
+    - cron: '0 * * * *'
+  push:
+    branches:
+      -  main
+
+jobs:
+  rustdoc:
+    name: Rustdoc
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: 'swc-project/swc'
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+
+      - name: Create rustdoc
+        run: cargo doc
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: target/doc
+          clean: true
+          git-config-email: bot@swc.rs
+          repository-name: swc-project/rustdoc
+          commit-message: "Update"
+          single-commit: true
