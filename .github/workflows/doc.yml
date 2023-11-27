@@ -2,9 +2,7 @@ name: Rustdoc
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
+    branches: [main]
 
 jobs:
   release:
