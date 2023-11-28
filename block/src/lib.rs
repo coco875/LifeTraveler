@@ -2,7 +2,7 @@
 //! Block is a library to give a base structure for blocks in a game.
 //! the [`Block`] struct is the base struct for all blocks and it's what it's stored in the world.
 //! the [`SimpleBlock`] struct is a simple implementation of the [`Block`] struct to decompress variables and functions associated with the block.
-//! to register the block see [`macro_reg`]
+//! to register the block see [`macro_register`]
 
 use std::collections::HashMap;
 use std::ffi::c_void;
