@@ -8,7 +8,6 @@
         "./region/Cargo.toml",
         "./macro_reg/Cargo.toml",
         "./core/Cargo.toml",
-        "./register/Cargo.toml",
         "./core/Cargo.toml"
     ],
     "rust-analyzer.showUnlinkedFileNotification": false,

@@ -68,7 +68,7 @@ fn capture_register_out(
     lib_path: &str,
 ) {
     let re =
-        Regex::new(format!(r"#\[register\({}\)\][\n\r]*pub mod (\w+)", out_name).as_str()).unwrap();
+        Regex::new(format!(r"#\[register\({}\)\][\n\r]*pub mod *(\w+)", out_name).as_str()).unwrap();
     for cap in re.captures_iter(&file_content) {
         file_str.push_str(&format!("pub use {}::{};\n", lib_path, &cap[1]));
         out_register.push(cap[1].to_string());
@@ -230,7 +230,7 @@ fn capture_register_complement_out(
 ) {
     let re = Regex::new(
         format!(
-            r#"#\[register_complement\({},"(\w+)"\)\][\n\r]*pub mod (\w+)"#,
+            r#"#\[register_complement\({},"(\w+)"\)\][\n\r]*pub +mod +(\w+)"#,
             out_name
         )
         .as_str(),
@@ -322,7 +322,7 @@ fn main() {
                 &lib_path,
             );
 
-            let re = Regex::new(r####"add_tag!\((\w+), "(\w+)", "(\w+)"\);"####).unwrap();
+            let re = Regex::new(r####"[\n\r]+add_tag!\((\w+) *, *"(\w+)" *, *"(\w+)" *\);"####).unwrap();
             for cap in re.captures_iter(&file_content) {
                 tags.entry(cap[1].to_string())
                     .or_insert(vec![])
@@ -333,7 +333,7 @@ fn main() {
                     .insert(cap[3].to_string());
             }
 
-            let re = Regex::new(r####"add_tag_from_file!\((\w+), "([\w_.]+)"\);"####).unwrap();
+            let re = Regex::new(r####"[\n\r]+add_tag_from_file!\((\w+) *, *"([\w_.]+)" *\);"####).unwrap();
             for cap in re.captures_iter(&file_content) {
                 let tags = tags.entry(cap[1].to_string()).or_insert(vec![]);
                 let file_content =
