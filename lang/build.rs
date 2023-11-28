@@ -4,7 +4,7 @@ use std::{collections::HashMap, io::Write, path};
 use walkdir::WalkDir;
 
 fn detect_lang(file_content: &str, lang: &mut HashMap<String, HashMap<String, String>>) {
-    let re = Regex::new(r#"add_lang!\((\w+) *, *"([\w_]+)" *, *"([\w ]+)"\);"#).unwrap();
+    let re = Regex::new(r#"[\n\r]+add_lang!\((\w+) *, *"([\w_]+)" *, *"([\w ]+)"\);"#).unwrap();
     for cap in re.captures_iter(file_content) {
         let lang_name = cap[1].to_string();
         let key = cap[2].to_string();
@@ -21,7 +21,7 @@ fn detect_lang_file(
     lang: &mut HashMap<String, HashMap<String, String>>,
     path: &path::Path,
 ) {
-    let re = Regex::new(r#"add_lang_from_file!\((\w+) *, *"([\w_.]+)"\);"#).unwrap();
+    let re = Regex::new(r#"[\n\r]+add_lang_from_file!\((\w+) *, *"([\w_.]+)"\);"#).unwrap();
     for cap in re.captures_iter(file_content) {
         let lang_name = cap[1].to_string();
         let file_name = cap[2].to_string();
