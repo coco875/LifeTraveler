@@ -7,6 +7,7 @@ var searchIndex = JSON.parse('{\
 "life_traveler":{"doc":"","t":"F","n":["main"],"q":[[0,"life_traveler"]],"d":[""],"i":[0],"f":[[[],1]],"c":[],"p":[[15,"tuple"]]},\
 "macro_register":{"doc":"Macro Reg","t":"OOOOXX","n":["add_lang","add_lang_from_file","add_tag","add_tag_from_file","register","register_complement"],"q":[[0,"macro_register"]],"d":["This macro is used to add a lang to a block, item, entity, …","This macro is used to add a lang to a block, item, entity, …","This macro is used to add a tag to a block, item, entity, …","This macro is used to add a tag to a block, item, entity, …","This macro is used to register a block, item, entity, etc…","This macro is used to register a block, item, entity, etc…"],"i":[0,0,0,0,0,0],"f":[0,0,0,0,0,0],"c":[],"p":[]},\
 "region":{"doc":"","t":"F","n":["add"],"q":[[0,"region"]],"d":[""],"i":[0],"f":[[[1,1],1]],"c":[],"p":[[15,"usize"]]},\
+"render":{"doc":"","t":"F","n":["run"],"q":[[0,"render"]],"d":[""],"i":[0],"f":[[[],1]],"c":[],"p":[[15,"tuple"]]},\
 "world":{"doc":"","t":"F","n":["add"],"q":[[0,"world"]],"d":[""],"i":[0],"f":[[[1,1],1]],"c":[],"p":[[15,"usize"]]}\
 }');
 if (typeof window !== 'undefined' && window.initSearch) {window.initSearch(searchIndex)};

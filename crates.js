@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["block","chunk","core","item","lang","life_traveler","macro_register","region","world"];
+window.ALL_CRATES = ["block","chunk","core","item","lang","life_traveler","macro_register","region","render","world"];
