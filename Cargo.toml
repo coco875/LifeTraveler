@@ -12,6 +12,8 @@ chunk = { path = "chunk" }
 region = { path = "region" }
 world = { path = "world" }
 core = { path = "core" }
+render = { path = "render" }
+pollster = "0.3"
 
 [workspace]
 
@@ -22,5 +24,6 @@ members = [
     "region",
     "world",
     "lang",
+    "render",
     "core"
 ]
