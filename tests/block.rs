@@ -1,5 +1,5 @@
 use block::Block;
-use core::register::load_block;
+use core::register::{create_block, load_block};
 
 #[cfg(test)]
 mod tests {
@@ -20,9 +20,7 @@ mod tests {
 
     #[test]
     fn test_load_dirt_block() {
-        let mut block = Block::new();
-        block.id = 2;
-        let block = load_block(block);
+        let block = create_block(core::register::blocks::DIRT_BLOCK_ID);
         assert_eq!(block.name, "dirt");
     }
 }

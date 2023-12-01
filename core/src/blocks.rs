@@ -1,3 +1,5 @@
+//! Blocks are the basic elements of the game. They are used to build the world and to craft items.
+
 use block::SimpleBlock;
 use macro_register::{add_lang, add_lang_from_file, add_tag, register};
 

@@ -1,7 +1,11 @@
+//! # Lang
+//! A library to load lang files
+
 use regex::Regex;
 use std::{collections::HashMap, fs, hash::BuildHasherDefault};
 use twox_hash::XxHash64;
 
+/// Load a lang file
 pub fn load_lang(lang: &str) -> HashMap<String, String, BuildHasherDefault<XxHash64>> {
     let mut map = HashMap::default();
     let file = fs::read_to_string(format!("lang/{}.json", lang)).unwrap();

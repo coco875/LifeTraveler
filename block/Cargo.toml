@@ -9,3 +9,4 @@ edition = "2021"
 item = { path = "../item" }
 twox-hash = "1.6.3"
 quickphf = "*"
+serde_json = "*"

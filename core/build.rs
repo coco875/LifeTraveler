@@ -67,8 +67,8 @@ fn capture_register_out(
     out_name: &str,
     lib_path: &str,
 ) {
-    let re =
-        Regex::new(format!(r"#\[register\({}\)\][\n\r]*pub mod *(\w+)", out_name).as_str()).unwrap();
+    let re = Regex::new(format!(r"#\[register\({}\)\][\n\r]*pub mod *(\w+)", out_name).as_str())
+        .unwrap();
     for cap in re.captures_iter(&file_content) {
         file_str.push_str(&format!("pub use {}::{};\n", lib_path, &cap[1]));
         out_register.push(cap[1].to_string());
@@ -100,7 +100,7 @@ fn write_static_outdata(
 
     for i in out_register {
         file_str.push_str(&format!(
-            "pub const {}_ID: i32 = {};\n",
+            "pub const {}_ID: u16 = {};\n",
             &i.to_case(Case::UpperSnake),
             n
         ));
@@ -322,7 +322,8 @@ fn main() {
                 &lib_path,
             );
 
-            let re = Regex::new(r####"[\n\r]+add_tag!\((\w+) *, *"(\w+)" *, *"(\w+)" *\);"####).unwrap();
+            let re =
+                Regex::new(r####"[\n\r]+add_tag!\((\w+) *, *"(\w+)" *, *"(\w+)" *\);"####).unwrap();
             for cap in re.captures_iter(&file_content) {
                 tags.entry(cap[1].to_string())
                     .or_insert(vec![])
@@ -333,7 +334,8 @@ fn main() {
                     .insert(cap[3].to_string());
             }
 
-            let re = Regex::new(r####"[\n\r]+add_tag_from_file!\((\w+) *, *"([\w_.]+)" *\);"####).unwrap();
+            let re = Regex::new(r####"[\n\r]+add_tag_from_file!\((\w+) *, *"([\w_.]+)" *\);"####)
+                .unwrap();
             for cap in re.captures_iter(&file_content) {
                 let tags = tags.entry(cap[1].to_string()).or_insert(vec![]);
                 let file_content =

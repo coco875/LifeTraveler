@@ -1,3 +1,5 @@
+//! Items are the basic building blocks of the game. They are used to craft other items, and are the main way of interacting with the world.
+
 use item::SimpleItem;
 use macro_register::{add_lang, add_tag, add_tag_from_file, register, register_complement};
 

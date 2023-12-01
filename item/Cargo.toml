@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 twox-hash = "*"
 quickphf = "*"
+serde_json = { version = "*", features = ["derive"] }
