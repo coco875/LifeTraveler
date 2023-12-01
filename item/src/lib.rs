@@ -4,7 +4,6 @@
 
 use serde_json::Value;
 use std::collections::HashMap;
-use std::ffi::c_void;
 use std::hash::BuildHasherDefault;
 use twox_hash::XxHash64;
 
@@ -64,17 +63,12 @@ impl SimpleItem {
     }
 
     /// Set a variable/attribute of the item
-    pub fn set_var<T>(&mut self, name: String, value: T) {
+    pub fn set_var<T: serde::Serialize>(&mut self, name: String, value: T) {
         self.var.insert(name, serde_json::to_value(value).unwrap());
     }
 
     /// Get a variable/attribute of the item
-    pub fn get_var<T>(&self, name: String) -> &T {
-        self.var
-            .get(&name)
-            .unwrap()
-            .as_any()
-            .downcast_ref::<T>()
-            .unwrap()
+    pub fn get_var<T: for<'de> serde::Deserialize<'de>>(&self, name: String) -> T {
+        serde_json::from_value(self.var.get(&name).unwrap().clone()).unwrap()
     }
 }

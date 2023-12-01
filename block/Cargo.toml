@@ -10,3 +10,4 @@ item = { path = "../item" }
 twox-hash = "1.6.3"
 quickphf = "*"
 serde_json = "*"
+serde = { version = "1.0", features = ["derive"] }
