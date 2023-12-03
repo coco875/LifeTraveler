@@ -78,6 +78,46 @@
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::<span class="kw-2">*</span>;
 <span class="kw">use </span>image::GenericImageView;
 
@@ -88,6 +128,46 @@
 }
 
 <span class="kw">impl </span>Texture {
+    <span class="kw">pub const </span>DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float; <span class="comment">// 1.
+    
+    </span><span class="kw">pub fn </span>create_depth_texture(device: <span class="kw-2">&amp;</span>wgpu::Device, config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>size = wgpu::Extent3d {
+            width: config.width,
+            height: config.height,
+            depth_or_array_layers: <span class="number">1</span>,
+        };
+        <span class="kw">let </span>desc = wgpu::TextureDescriptor {
+            label: <span class="prelude-val">Some</span>(label),
+            size,
+            mip_level_count: <span class="number">1</span>,
+            sample_count: <span class="number">1</span>,
+            dimension: wgpu::TextureDimension::D2,
+            format: <span class="self">Self</span>::DEPTH_FORMAT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING,
+            view_formats: <span class="kw-2">&amp;</span>[],
+        };
+        <span class="kw">let </span>texture = device.create_texture(<span class="kw-2">&amp;</span>desc);
+
+        <span class="kw">let </span>view = texture.create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
+        <span class="kw">let </span>sampler = device.create_sampler(
+            <span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
+                address_mode_u: wgpu::AddressMode::ClampToEdge,
+                address_mode_v: wgpu::AddressMode::ClampToEdge,
+                address_mode_w: wgpu::AddressMode::ClampToEdge,
+                mag_filter: wgpu::FilterMode::Linear,
+                min_filter: wgpu::FilterMode::Linear,
+                mipmap_filter: wgpu::FilterMode::Nearest,
+                compare: <span class="prelude-val">Some</span>(wgpu::CompareFunction::LessEqual),
+                lod_min_clamp: <span class="number">0.0</span>,
+                lod_max_clamp: <span class="number">100.0</span>,
+                ..Default::default()
+            }
+        );
+
+        <span class="self">Self </span>{ texture, view, sampler }
+    }
+
     <span class="kw">pub fn </span>from_bytes(
         device: <span class="kw-2">&amp;</span>wgpu::Device,
         queue: <span class="kw-2">&amp;</span>wgpu::Queue,
