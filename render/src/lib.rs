@@ -1,4 +1,3 @@
-use std::iter;
 use wgpu::util::DeviceExt;
 use winit::{
     event::*,
@@ -155,6 +154,11 @@ struct State {
     instance_buffer: wgpu::Buffer,
     depth_texture: texture::Texture,
     blur: blur::Blur,
+    // post processing
+    texture_1: wgpu::Texture,
+    texture_1_view: wgpu::TextureView,
+    texture_2: wgpu::Texture,
+    texture_2_view: wgpu::TextureView,
 }
 
 impl State {
@@ -390,7 +394,47 @@ impl State {
         });
         let num_indices = INDICES.len() as u32;
 
-        let blur = blur::Blur::new(&config, &device, &queue);
+        let texture_1_desc = wgpu::TextureDescriptor {
+            label: Some("Texture 1"),
+            size: wgpu::Extent3d {
+                width: config.width,
+                height: config.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        };
+
+        let texture_1 = device.create_texture(&texture_1_desc);
+        let texture_1_view = texture_1.create_view(&Default::default());
+
+        let texture_2_desc = wgpu::TextureDescriptor {
+            label: Some("Texture 2"),
+            size: wgpu::Extent3d {
+                width: config.width,
+                height: config.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        };
+
+        let texture_2 = device.create_texture(&texture_2_desc);
+        let texture_2_view = texture_2.create_view(&Default::default());
+
+        let blur = blur::Blur::new(&config, &device, &texture_1_view);
 
         Self {
             surface,
@@ -411,11 +455,57 @@ impl State {
             instance_buffer,
             depth_texture,
             blur,
+            texture_1,
+            texture_1_view,
+            texture_2,
+            texture_2_view,
         }
     }
 
     fn window(&self) -> &Window {
         &self.window
+    }
+
+    fn redo_texture(&mut self) {
+        let texture_1_desc = wgpu::TextureDescriptor {
+            label: Some("Texture 1"),
+            size: wgpu::Extent3d {
+                width: self.config.width,
+                height: self.config.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        };
+
+        self.texture_1 = self.device.create_texture(&texture_1_desc);
+        self.texture_1_view = self.texture_1.create_view(&Default::default());
+
+        let texture_2_desc = wgpu::TextureDescriptor {
+            label: Some("Texture 2"),
+            size: wgpu::Extent3d {
+                width: self.config.width,
+                height: self.config.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        };
+
+        self.texture_2 = self.device.create_texture(&texture_2_desc);
+        self.texture_2_view = self.texture_2.create_view(&Default::default());
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
@@ -426,7 +516,8 @@ impl State {
             self.surface.configure(&self.device, &self.config);
             self.depth_texture =
                 texture::Texture::create_depth_texture(&self.device, &self.config, "depth_texture");
-            self.blur.resize(&self.config, &self.device);
+            self.redo_texture();
+            self.blur.resize(&self.device, &self.texture_1_view);
         }
     }
 
@@ -456,10 +547,8 @@ impl State {
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-        let medium_view = &self.blur.texture.create_view(&Default::default());
-        self.render_scene(medium_view, &mut encoder);
-        self.blur
-            .render(&view, &medium_view, &mut encoder, &self.device);
+        self.render_scene(&self.texture_1_view, &mut encoder);
+        self.blur.render(&view, &mut encoder);
         self.queue.submit(Some(encoder.finish()));
         output.present();
 
