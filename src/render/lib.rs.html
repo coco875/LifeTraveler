@@ -569,9 +569,6 @@
 <a href="#569" id="569">569</a>
 <a href="#570" id="570">570</a>
 <a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::iter;
 <span class="kw">use </span>wgpu::util::DeviceExt;
 <span class="kw">use </span>winit::{
@@ -1022,12 +1019,18 @@
 
     <span class="kw">fn </span>render(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), wgpu::SurfaceError&gt; {
         <span class="kw">let </span>output = <span class="self">self</span>.surface.get_current_texture()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self
+            </span>.device
+            .create_command_encoder(<span class="kw-2">&amp;</span>wgpu::CommandEncoderDescriptor {
+                label: <span class="prelude-val">Some</span>(<span class="string">&quot;Render Encoder&quot;</span>),
+            });
         <span class="kw">let </span>view = output
             .texture
             .create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
-        <span class="kw">let </span>medium_view = <span class="kw-2">&amp;</span><span class="self">self</span>.blur.texture_view;
-        <span class="self">self</span>.render_scene(medium_view);
-        <span class="self">self</span>.blur.render(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.queue);
+        <span class="kw">let </span>medium_view = <span class="kw-2">&amp;</span><span class="self">self</span>.blur.texture.create_view(<span class="kw-2">&amp;</span>Default::default());
+        <span class="self">self</span>.render_scene(medium_view, <span class="kw-2">&amp;mut </span>encoder);
+        <span class="self">self</span>.blur.render(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;mut </span>encoder);
+        <span class="self">self</span>.queue.submit(<span class="prelude-val">Some</span>(encoder.finish()));
         output.present();
 
         <span class="comment">// println!(&quot;FPS: {}&quot;, 1.0 / self.last_frame_time.elapsed().as_secs_f64());
@@ -1035,51 +1038,42 @@
         </span><span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>render_scene(<span class="kw-2">&amp;</span><span class="self">self</span>, view: <span class="kw-2">&amp;</span>wgpu::TextureView) {
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self
-            </span>.device
-            .create_command_encoder(<span class="kw-2">&amp;</span>wgpu::CommandEncoderDescriptor {
-                label: <span class="prelude-val">Some</span>(<span class="string">&quot;Render Encoder&quot;</span>),
-            });
-
-        {
-            <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
-                label: <span class="prelude-val">Some</span>(<span class="string">&quot;Render Pass&quot;</span>),
-                color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
-                    view: <span class="kw-2">&amp;</span>view,
-                    resolve_target: <span class="prelude-val">None</span>,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: <span class="number">0.1</span>,
-                            g: <span class="number">0.2</span>,
-                            b: <span class="number">0.3</span>,
-                            a: <span class="number">1.0</span>,
-                        }),
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: <span class="prelude-val">Some</span>(wgpu::RenderPassDepthStencilAttachment {
-                    view: <span class="kw-2">&amp;</span><span class="self">self</span>.depth_texture.view,
-                    depth_ops: <span class="prelude-val">Some</span>(wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(<span class="number">1.0</span>),
-                        store: wgpu::StoreOp::Store,
+    <span class="kw">fn </span>render_scene(<span class="kw-2">&amp;</span><span class="self">self</span>, view: <span class="kw-2">&amp;</span>wgpu::TextureView, encoder: <span class="kw-2">&amp;mut </span>wgpu::CommandEncoder) {
+        <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Render Pass&quot;</span>),
+            color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
+                view: view,
+                resolve_target: <span class="prelude-val">None</span>,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: <span class="number">0.1</span>,
+                        g: <span class="number">0.2</span>,
+                        b: <span class="number">0.3</span>,
+                        a: <span class="number">1.0</span>,
                     }),
-                    stencil_ops: <span class="prelude-val">None</span>,
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: <span class="prelude-val">Some</span>(wgpu::RenderPassDepthStencilAttachment {
+                view: <span class="kw-2">&amp;</span><span class="self">self</span>.depth_texture.view,
+                depth_ops: <span class="prelude-val">Some</span>(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(<span class="number">1.0</span>),
+                    store: wgpu::StoreOp::Store,
                 }),
-                occlusion_query_set: <span class="prelude-val">None</span>,
-                timestamp_writes: <span class="prelude-val">None</span>,
-            });
+                stencil_ops: <span class="prelude-val">None</span>,
+            }),
+            occlusion_query_set: <span class="prelude-val">None</span>,
+            timestamp_writes: <span class="prelude-val">None</span>,
+        });
 
-            render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
-            render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
-            render_pass.set_bind_group(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.camera.camera_bind_group, <span class="kw-2">&amp;</span>[]);
-            render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
-            render_pass.set_vertex_buffer(<span class="number">1</span>, <span class="self">self</span>.instance_buffer.slice(..));
-            render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+        render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
+        render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_bind_group(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.camera.camera_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
+        render_pass.set_vertex_buffer(<span class="number">1</span>, <span class="self">self</span>.instance_buffer.slice(..));
+        render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
 
-            render_pass.draw_indexed(<span class="number">0</span>..<span class="self">self</span>.num_indices, <span class="number">0</span>, <span class="number">0</span>..<span class="self">self</span>.instances.len() <span class="kw">as _</span>);
-        }
-        <span class="self">self</span>.queue.submit(iter::once(encoder.finish()));
+        render_pass.draw_indexed(<span class="number">0</span>..<span class="self">self</span>.num_indices, <span class="number">0</span>, <span class="number">0</span>..<span class="self">self</span>.instances.len() <span class="kw">as _</span>);
     }
 }
 

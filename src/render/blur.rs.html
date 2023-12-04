@@ -266,8 +266,27 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>wgpu::util::DeviceExt;
-<span class="kw">use </span><span class="kw">crate</span>::texture;
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>image::GenericImageView;
+<span class="kw">use </span>wgpu::util::DeviceExt;
 
 <span class="attr">#[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -321,7 +340,6 @@
 
 <span class="kw">pub struct </span>Blur {
     <span class="kw">pub </span>texture: wgpu::Texture,
-    <span class="kw">pub </span>texture_view: wgpu::TextureView,
     diffuse_bind_group: wgpu::BindGroup,
     render_pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
@@ -330,7 +348,11 @@
 }
 
 <span class="kw">impl </span>Blur {
-    <span class="kw">pub fn </span>new(config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration, device: <span class="kw-2">&amp;</span>wgpu::Device, queue: <span class="kw-2">&amp;</span>wgpu::Queue) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new(
+        config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration,
+        device: <span class="kw-2">&amp;</span>wgpu::Device,
+        queue: <span class="kw-2">&amp;</span>wgpu::Queue,
+    ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>texture_desc = wgpu::TextureDescriptor {
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Texture&quot;</span>),
             size: wgpu::Extent3d {
@@ -342,18 +364,43 @@
             sample_count: <span class="number">1</span>,
             dimension: wgpu::TextureDimension::D2,
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
             view_formats: <span class="kw-2">&amp;</span>[],
         };
 
         <span class="kw">let </span>texture = device.create_texture(<span class="kw-2">&amp;</span>texture_desc);
         <span class="kw">let </span>texture_view = texture.create_view(<span class="kw-2">&amp;</span>Default::default());
 
-        <span class="comment">// let diffuse_bytes = include_bytes!(&quot;happy-tree.png&quot;);
-        // let diffuse_texture =
+        <span class="kw">let </span>diffuse_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;happy-tree.png&quot;</span>);
+        <span class="comment">// let diffuse_texture =
         //     texture::Texture::from_bytes(&amp;device, &amp;queue, diffuse_bytes, &quot;happy-tree.png&quot;).unwrap();
 
-        </span><span class="kw">let </span>sampler = device.create_sampler(<span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
+        </span><span class="kw">let </span>img = image::load_from_memory(diffuse_bytes).unwrap();
+        <span class="kw">let </span>rgba = img.as_rgba8().unwrap();
+        <span class="kw">let </span>dimensions = img.dimensions();
+        <span class="kw">let </span>size = wgpu::Extent3d {
+            width: dimensions.<span class="number">0</span>,
+            height: dimensions.<span class="number">1</span>,
+            depth_or_array_layers: <span class="number">1</span>,
+        };
+
+        queue.write_texture(
+            wgpu::ImageCopyTexture {
+                aspect: wgpu::TextureAspect::All,
+                texture: <span class="kw-2">&amp;</span>texture,
+                mip_level: <span class="number">0</span>,
+                origin: wgpu::Origin3d::ZERO,
+            },
+            <span class="kw-2">&amp;</span>rgba,
+            wgpu::ImageDataLayout {
+                offset: <span class="number">0</span>,
+                bytes_per_row: <span class="prelude-val">Some</span>(<span class="number">4 </span>* dimensions.<span class="number">0</span>),
+                rows_per_image: <span class="prelude-val">Some</span>(dimensions.<span class="number">1</span>),
+            },
+            size,
+        );
+
+        <span class="kw">let </span>sampler = device.create_sampler(<span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Sampler&quot;</span>),
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
@@ -470,7 +517,6 @@
 
         <span class="self">Self </span>{
             texture,
-            texture_view,
             diffuse_bind_group,
             render_pipeline,
             vertex_buffer,
@@ -491,47 +537,39 @@
             sample_count: <span class="number">1</span>,
             dimension: wgpu::TextureDimension::D2,
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
             view_formats: <span class="kw-2">&amp;</span>[],
         };
 
         <span class="self">self</span>.texture = device.create_texture(<span class="kw-2">&amp;</span>texture_desc);
-        <span class="self">self</span>.texture_view = <span class="self">self</span>.texture.create_view(<span class="kw-2">&amp;</span>Default::default());
     }
 
-    <span class="kw">pub fn </span>render(<span class="kw-2">&amp;mut </span><span class="self">self</span>, view: <span class="kw-2">&amp;</span>wgpu::TextureView, device: <span class="kw-2">&amp;</span>wgpu::Device, queue: <span class="kw-2">&amp;</span>wgpu::Queue) {
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = device.create_command_encoder(<span class="kw-2">&amp;</span>wgpu::CommandEncoderDescriptor {
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Render Encoder&quot;</span>),
+    <span class="kw">pub fn </span>render(<span class="kw-2">&amp;mut </span><span class="self">self</span>, view: <span class="kw-2">&amp;</span>wgpu::TextureView, encoder: <span class="kw-2">&amp;mut </span>wgpu::CommandEncoder) {
+        <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Render Pass&quot;</span>),
+            color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
+                view: <span class="kw-2">&amp;</span>view,
+                resolve_target: <span class="prelude-val">None</span>,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: <span class="number">0.0</span>,
+                        g: <span class="number">0.0</span>,
+                        b: <span class="number">0.0</span>,
+                        a: <span class="number">0.0</span>,
+                    }),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: <span class="prelude-val">None</span>,
+            occlusion_query_set: <span class="prelude-val">None</span>,
+            timestamp_writes: <span class="prelude-val">None</span>,
         });
-        {
-            <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
-                label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Render Pass&quot;</span>),
-                color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
-                    view: <span class="kw-2">&amp;</span>view,
-                    resolve_target: <span class="prelude-val">None</span>,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: <span class="number">0.0</span>,
-                            g: <span class="number">0.0</span>,
-                            b: <span class="number">0.0</span>,
-                            a: <span class="number">0.0</span>,
-                        }),
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: <span class="prelude-val">None</span>,
-                occlusion_query_set: <span class="prelude-val">None</span>,
-                timestamp_writes: <span class="prelude-val">None</span>,
-            });
 
-            render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
-            render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
-            render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
-            render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-            render_pass.draw_indexed(<span class="number">0</span>..<span class="self">self</span>.num_indices, <span class="number">0</span>, <span class="number">0</span>..<span class="number">1</span>);
-        }
-
-        queue.submit(std::iter::once(encoder.finish()));
+        render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
+        render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
+        render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+        render_pass.draw_indexed(<span class="number">0</span>..<span class="self">self</span>.num_indices, <span class="number">0</span>, <span class="number">0</span>..<span class="number">1</span>);
     }
 }
 </code></pre></div></section></main></body></html>
