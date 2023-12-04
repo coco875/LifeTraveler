@@ -458,7 +458,8 @@ impl State {
             .create_view(&wgpu::TextureViewDescriptor::default());
         let medium_view = &self.blur.texture.create_view(&Default::default());
         self.render_scene(medium_view, &mut encoder);
-        self.blur.render(&view, &mut encoder);
+        self.blur
+            .render(&view, &medium_view, &mut encoder, &self.device);
         self.queue.submit(Some(encoder.finish()));
         output.present();
 

@@ -27,19 +27,19 @@ var s_diffuse: sampler;
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    // var size_blur: i32 = 1;
+    var size_blur: i32 = 10;
 
-    // var color : vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
-    // let dimensions = textureDimensions(t_diffuse);
+    var color : vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+    let dimensions = textureDimensions(t_diffuse);
 
-    // for (var x : i32 = -size_blur; x <= size_blur; x++) {
-    //     for (var y : i32 = -size_blur; y <= size_blur; y++) {
-    //         var offset: vec2<f32> = vec2<f32>(f32(x)/f32(dimensions.x), f32(y)/f32(dimensions.y));
-    //         color += textureSample(t_diffuse, s_diffuse, in.tex_coords + offset);
-    //     }
-    // }
+    for (var x : i32 = -size_blur; x <= size_blur; x++) {
+        for (var y : i32 = -size_blur; y <= size_blur; y++) {
+            var offset: vec2<f32> = vec2<f32>(f32(x)/f32(dimensions.x), f32(y)/f32(dimensions.y));
+            color += textureSample(t_diffuse, s_diffuse, in.tex_coords + offset);
+        }
+    }
 
-    // color /= f32(size_blur+2) * f32(size_blur+2);
-    var color : vec4<f32> = textureSample(t_diffuse, s_diffuse, in.tex_coords);
+    color /= f32(size_blur+2) * f32(size_blur+2);
+    // var color : vec4<f32> = textureSample(t_diffuse, s_diffuse, in.tex_coords);
     return color;
 }
