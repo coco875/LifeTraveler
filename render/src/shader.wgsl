@@ -35,7 +35,7 @@ fn vs_main(
     );
     var out: VertexOutput;
     out.tex_coords = model.tex_coords;
-    out.clip_position = camera.view_proj * model_matrix * vec4<f32>(model.position, 1.0); // 2.
+    out.clip_position = camera.view_proj * model_matrix * vec4<f32>(model.position, 1.0);
     return out;
 }
 
@@ -46,5 +46,6 @@ var s_diffuse: sampler;
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return textureSample(t_diffuse, s_diffuse, vec2<f32>(in.tex_coords.x, 1.0 - in.tex_coords.y));
+    let color = textureSample(t_diffuse, s_diffuse, vec2<f32>(in.tex_coords.x, 1.0 - in.tex_coords.y));
+    return color ;
 }
