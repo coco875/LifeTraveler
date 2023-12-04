@@ -138,7 +138,84 @@
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>winit::event::{WindowEvent, KeyboardInput, ElementState, VirtualKeyCode};
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>wgpu::util::DeviceExt;
+<span class="kw">use </span>winit::event::{ElementState, KeyboardInput, VirtualKeyCode, WindowEvent};
 
 <span class="kw">pub struct </span>Camera {
     <span class="kw">pub </span>eye: cgmath::Point3&lt;f32&gt;,
@@ -148,6 +225,11 @@
     <span class="kw">pub </span>fovy: f32,
     <span class="kw">pub </span>znear: f32,
     <span class="kw">pub </span>zfar: f32,
+    <span class="kw">pub </span>camera_uniform: CameraUniform,
+    <span class="kw">pub </span>camera_buffer: wgpu::Buffer,
+    <span class="kw">pub </span>camera_bind_group: wgpu::BindGroup,
+    <span class="kw">pub </span>camera_bind_group_layout: wgpu::BindGroupLayout,
+    <span class="kw">pub </span>camera_controller: CameraController,
 }
 
 <span class="attr">#[rustfmt::skip]
@@ -159,12 +241,118 @@
 );
 
 <span class="kw">impl </span>Camera {
+    <span class="kw">pub fn </span>new(
+        eye: cgmath::Point3&lt;f32&gt;,
+        target: cgmath::Point3&lt;f32&gt;,
+        up: cgmath::Vector3&lt;f32&gt;,
+        aspect: f32,
+        fovy: f32,
+        znear: f32,
+        zfar: f32,
+        device: <span class="kw-2">&amp;</span>wgpu::Device,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>camera_uniform = CameraUniform::new();
+        <span class="kw">let </span>view = cgmath::Matrix4::look_at_rh(eye, target, up);
+
+        <span class="kw">let </span>proj = cgmath::perspective(cgmath::Deg(fovy), aspect, znear, zfar);
+        camera_uniform.view_proj = (OPENGL_TO_WGPU_MATRIX * proj * view).into();
+
+        <span class="kw">let </span>camera_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Camera Buffer&quot;</span>),
+            contents: bytemuck::cast_slice(<span class="kw-2">&amp;</span>[camera_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+
+        <span class="kw">let </span>camera_bind_group_layout =
+            device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
+                entries: <span class="kw-2">&amp;</span>[wgpu::BindGroupLayoutEntry {
+                    binding: <span class="number">0</span>,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: <span class="bool-val">false</span>,
+                        min_binding_size: <span class="prelude-val">None</span>,
+                    },
+                    count: <span class="prelude-val">None</span>,
+                }],
+                label: <span class="prelude-val">Some</span>(<span class="string">&quot;camera_bind_group_layout&quot;</span>),
+            });
+
+        <span class="kw">let </span>camera_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
+            layout: <span class="kw-2">&amp;</span>camera_bind_group_layout,
+            entries: <span class="kw-2">&amp;</span>[wgpu::BindGroupEntry {
+                binding: <span class="number">0</span>,
+                resource: camera_buffer.as_entire_binding(),
+            }],
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;camera_bind_group&quot;</span>),
+        });
+
+        <span class="kw">let </span>camera_controller = CameraController::new(<span class="number">0.2</span>);
+
+        <span class="self">Self </span>{
+            eye,
+            target,
+            up,
+            aspect,
+            fovy,
+            znear,
+            zfar,
+            camera_uniform,
+            camera_buffer,
+            camera_bind_group,
+            camera_bind_group_layout,
+            camera_controller,
+        }
+    }
+
     <span class="kw">pub fn </span>build_view_projection_matrix(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; cgmath::Matrix4&lt;f32&gt; {
         <span class="kw">let </span>view = cgmath::Matrix4::look_at_rh(<span class="self">self</span>.eye, <span class="self">self</span>.target, <span class="self">self</span>.up);
 
         <span class="kw">let </span>proj = cgmath::perspective(cgmath::Deg(<span class="self">self</span>.fovy), <span class="self">self</span>.aspect, <span class="self">self</span>.znear, <span class="self">self</span>.zfar);
 
         <span class="kw">return </span>OPENGL_TO_WGPU_MATRIX * proj * view;
+    }
+
+    <span class="kw">pub fn </span>update_view_proj(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.camera_uniform.view_proj = <span class="self">self</span>.build_view_projection_matrix().into();
+    }
+
+    <span class="kw">pub fn </span>update_control(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dt: f32) {
+        <span class="kw">use </span>cgmath::InnerSpace;
+        <span class="kw">let </span>speed = dt * <span class="self">self</span>.camera_controller.speed * <span class="number">10.0</span>;
+        <span class="kw">let </span>forward = <span class="self">self</span>.target - <span class="self">self</span>.eye;
+        <span class="kw">let </span>forward_norm = forward.normalize();
+        <span class="kw">let </span>forward_mag = forward.magnitude();
+
+        <span class="comment">// Prevents glitching when the camera gets too close to the
+        // center of the scene.
+        </span><span class="kw">if </span><span class="self">self</span>.camera_controller.is_forward_pressed &amp;&amp; forward_mag &gt; speed {
+            <span class="self">self</span>.eye += forward_norm * speed;
+        }
+        <span class="kw">if </span><span class="self">self</span>.camera_controller.is_backward_pressed {
+            <span class="self">self</span>.eye -= forward_norm * speed;
+        }
+
+        <span class="kw">let </span>right = forward_norm.cross(<span class="self">self</span>.up);
+
+        <span class="comment">// Redo radius calc in case the forward/backward is pressed.
+        </span><span class="kw">let </span>forward = <span class="self">self</span>.target - <span class="self">self</span>.eye;
+        <span class="kw">let </span>forward_mag = forward.magnitude();
+
+        <span class="kw">if </span><span class="self">self</span>.camera_controller.is_right_pressed {
+            <span class="comment">// Rescale the distance between the target and the eye so
+            // that it doesn&#39;t change. The eye, therefore, still
+            // lies on the circle made by the target and eye.
+            </span><span class="self">self</span>.eye = <span class="self">self</span>.target - (forward + right * speed).normalize() * forward_mag;
+        }
+        <span class="kw">if </span><span class="self">self</span>.camera_controller.is_left_pressed {
+            <span class="self">self</span>.eye = <span class="self">self</span>.target - (forward - right * speed).normalize() * forward_mag;
+        }
+    }
+
+    <span class="kw">pub fn </span>update_camera(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dt: f32) {
+        <span class="self">self</span>.update_control(dt);
+        <span class="self">self</span>.update_view_proj();
     }
 }
 
@@ -175,7 +363,7 @@
 </span><span class="kw">pub struct </span>CameraUniform {
     <span class="comment">// We can&#39;t use cgmath with bytemuck directly, so we&#39;ll have
     // to convert the Matrix4 into a 4x4 f32 array
-    </span>view_proj: [[f32; <span class="number">4</span>]; <span class="number">4</span>],
+    </span><span class="kw">pub </span>view_proj: [[f32; <span class="number">4</span>]; <span class="number">4</span>],
 }
 
 <span class="kw">impl </span>CameraUniform {
@@ -184,10 +372,6 @@
         <span class="self">Self </span>{
             view_proj: cgmath::Matrix4::identity().into(),
         }
-    }
-
-    <span class="kw">pub fn </span>update_view_proj(<span class="kw-2">&amp;mut </span><span class="self">self</span>, camera: <span class="kw-2">&amp;</span>Camera) {
-        <span class="self">self</span>.view_proj = camera.build_view_projection_matrix().into();
     }
 }
 
@@ -213,11 +397,12 @@
     <span class="kw">pub fn </span>process_events(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>WindowEvent) -&gt; bool {
         <span class="kw">match </span>event {
             WindowEvent::KeyboardInput {
-                input: KeyboardInput {
-                    state,
-                    virtual_keycode: <span class="prelude-val">Some</span>(keycode),
-                    ..
-                },
+                input:
+                    KeyboardInput {
+                        state,
+                        virtual_keycode: <span class="prelude-val">Some</span>(keycode),
+                        ..
+                    },
                 ..
             } =&gt; {
                 <span class="kw">let </span>is_pressed = <span class="kw-2">*</span>state == ElementState::Pressed;
@@ -244,37 +429,5 @@
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
-
-    <span class="kw">pub fn </span>update_camera(<span class="kw-2">&amp;</span><span class="self">self</span>, camera: <span class="kw-2">&amp;mut </span>Camera, dt: f32) {
-        <span class="kw">use </span>cgmath::InnerSpace;
-        <span class="kw">let </span>speed = dt * <span class="self">self</span>.speed * <span class="number">10.0</span>;
-        <span class="kw">let </span>forward = camera.target - camera.eye;
-        <span class="kw">let </span>forward_norm = forward.normalize();
-        <span class="kw">let </span>forward_mag = forward.magnitude();
-
-        <span class="comment">// Prevents glitching when the camera gets too close to the
-        // center of the scene.
-        </span><span class="kw">if </span><span class="self">self</span>.is_forward_pressed &amp;&amp; forward_mag &gt; speed {
-            camera.eye += forward_norm * speed;
-        }
-        <span class="kw">if </span><span class="self">self</span>.is_backward_pressed {
-            camera.eye -= forward_norm * speed;
-        }
-
-        <span class="kw">let </span>right = forward_norm.cross(camera.up);
-
-        <span class="comment">// Redo radius calc in case the forward/backward is pressed.
-        </span><span class="kw">let </span>forward = camera.target - camera.eye;
-        <span class="kw">let </span>forward_mag = forward.magnitude();
-
-        <span class="kw">if </span><span class="self">self</span>.is_right_pressed {
-            <span class="comment">// Rescale the distance between the target and the eye so 
-            // that it doesn&#39;t change. The eye, therefore, still 
-            // lies on the circle made by the target and eye.
-            </span>camera.eye = camera.target - (forward + right * speed).normalize() * forward_mag;
-        }
-        <span class="kw">if </span><span class="self">self</span>.is_left_pressed {
-            camera.eye = camera.target - (forward - right * speed).normalize() * forward_mag;
-        }
-    }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>

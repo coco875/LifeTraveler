@@ -118,6 +118,11 @@
 <a href="#118" id="118">118</a>
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::<span class="kw-2">*</span>;
 <span class="kw">use </span>image::GenericImageView;
 
@@ -129,8 +134,12 @@
 
 <span class="kw">impl </span>Texture {
     <span class="kw">pub const </span>DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float; <span class="comment">// 1.
-    
-    </span><span class="kw">pub fn </span>create_depth_texture(device: <span class="kw-2">&amp;</span>wgpu::Device, config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+
+    </span><span class="kw">pub fn </span>create_depth_texture(
+        device: <span class="kw-2">&amp;</span>wgpu::Device,
+        config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration,
+        label: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>size = wgpu::Extent3d {
             width: config.width,
             height: config.height,
@@ -143,29 +152,30 @@
             sample_count: <span class="number">1</span>,
             dimension: wgpu::TextureDimension::D2,
             format: <span class="self">Self</span>::DEPTH_FORMAT,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                | wgpu::TextureUsages::TEXTURE_BINDING,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
             view_formats: <span class="kw-2">&amp;</span>[],
         };
         <span class="kw">let </span>texture = device.create_texture(<span class="kw-2">&amp;</span>desc);
 
         <span class="kw">let </span>view = texture.create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
-        <span class="kw">let </span>sampler = device.create_sampler(
-            <span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
-                address_mode_u: wgpu::AddressMode::ClampToEdge,
-                address_mode_v: wgpu::AddressMode::ClampToEdge,
-                address_mode_w: wgpu::AddressMode::ClampToEdge,
-                mag_filter: wgpu::FilterMode::Linear,
-                min_filter: wgpu::FilterMode::Linear,
-                mipmap_filter: wgpu::FilterMode::Nearest,
-                compare: <span class="prelude-val">Some</span>(wgpu::CompareFunction::LessEqual),
-                lod_min_clamp: <span class="number">0.0</span>,
-                lod_max_clamp: <span class="number">100.0</span>,
-                ..Default::default()
-            }
-        );
+        <span class="kw">let </span>sampler = device.create_sampler(<span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
+            address_mode_u: wgpu::AddressMode::ClampToEdge,
+            address_mode_v: wgpu::AddressMode::ClampToEdge,
+            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Linear,
+            mipmap_filter: wgpu::FilterMode::Nearest,
+            compare: <span class="prelude-val">Some</span>(wgpu::CompareFunction::LessEqual),
+            lod_min_clamp: <span class="number">0.0</span>,
+            lod_max_clamp: <span class="number">100.0</span>,
+            ..Default::default()
+        });
 
-        <span class="self">Self </span>{ texture, view, sampler }
+        <span class="self">Self </span>{
+            texture,
+            view,
+            sampler,
+        }
     }
 
     <span class="kw">pub fn </span>from_bytes(

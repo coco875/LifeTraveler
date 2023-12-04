@@ -572,21 +572,6 @@
 <a href="#572" id="572">572</a>
 <a href="#573" id="573">573</a>
 <a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
-<a href="#580" id="580">580</a>
-<a href="#581" id="581">581</a>
-<a href="#582" id="582">582</a>
-<a href="#583" id="583">583</a>
-<a href="#584" id="584">584</a>
-<a href="#585" id="585">585</a>
-<a href="#586" id="586">586</a>
-<a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::iter;
 <span class="kw">use </span>wgpu::util::DeviceExt;
 <span class="kw">use </span>winit::{
@@ -595,13 +580,18 @@
     window::{Window, WindowBuilder},
 };
 
+<span class="kw">mod </span>blur;
 <span class="kw">mod </span>camera;
 <span class="kw">mod </span>texture;
-<span class="kw">use </span>camera::{Camera, CameraUniform, CameraController};
+<span class="kw">use </span>camera::Camera;
 <span class="kw">use </span>cgmath::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">const </span>NUM_INSTANCES_PER_ROW: u32 = <span class="number">10</span>;
-<span class="kw">const </span>INSTANCE_DISPLACEMENT: cgmath::Vector3&lt;f32&gt; = cgmath::Vector3::new(NUM_INSTANCES_PER_ROW <span class="kw">as </span>f32 * <span class="number">0.5</span>, <span class="number">0.0</span>, NUM_INSTANCES_PER_ROW <span class="kw">as </span>f32 * <span class="number">0.5</span>);
+<span class="kw">const </span>INSTANCE_DISPLACEMENT: cgmath::Vector3&lt;f32&gt; = cgmath::Vector3::new(
+    NUM_INSTANCES_PER_ROW <span class="kw">as </span>f32 * <span class="number">0.5</span>,
+    <span class="number">0.0</span>,
+    NUM_INSTANCES_PER_ROW <span class="kw">as </span>f32 * <span class="number">0.5</span>,
+);
 
 <span class="kw">struct </span>Instance {
     position: cgmath::Vector3&lt;f32&gt;,
@@ -611,7 +601,9 @@
 <span class="kw">impl </span>Instance {
     <span class="kw">fn </span>to_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InstanceRaw {
         InstanceRaw {
-            model: (cgmath::Matrix4::from_translation(<span class="self">self</span>.position) * cgmath::Matrix4::from(<span class="self">self</span>.rotation)).into(),
+            model: (cgmath::Matrix4::from_translation(<span class="self">self</span>.position)
+                * cgmath::Matrix4::from(<span class="self">self</span>.rotation))
+            .into(),
         }
     }
 }
@@ -732,14 +724,11 @@
     diffuse_bind_group: wgpu::BindGroup,
     window: Window,
     camera: Camera,
-    camera_uniform: CameraUniform,
-    camera_buffer: wgpu::Buffer,
-    camera_controller: CameraController,
-    camera_bind_group: wgpu::BindGroup,
     last_frame_time: std::time::Instant,
     instances: Vec&lt;Instance&gt;,
     instance_buffer: wgpu::Buffer,
     depth_texture: texture::Texture,
+    blur: blur::Blur,
 }
 
 <span class="kw">impl </span>State {
@@ -777,7 +766,7 @@
                     features: wgpu::Features::empty(),
                     <span class="comment">// WebGL doesn&#39;t support all of wgpu&#39;s features, so if
                     // we&#39;re building for the web we&#39;ll have to disable some.
-                    </span>limits: wgpu::Limits::default()
+                    </span>limits: wgpu::Limits::default(),
                 },
                 <span class="prelude-val">None</span>, <span class="comment">// Trace path
             </span>)
@@ -813,27 +802,28 @@
             texture::Texture::from_bytes(<span class="kw-2">&amp;</span>device, <span class="kw-2">&amp;</span>queue, diffuse_bytes, <span class="string">&quot;happy-tree.png&quot;</span>).unwrap();
 
         <span class="comment">// Create a bind group for the texture
-        </span><span class="kw">let </span>texture_bind_group_layout = device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
-            entries: <span class="kw-2">&amp;</span>[
-                wgpu::BindGroupLayoutEntry {
-                    binding: <span class="number">0</span>,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        multisampled: <span class="bool-val">false</span>,
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        sample_type: wgpu::TextureSampleType::Float { filterable: <span class="bool-val">true </span>},
+        </span><span class="kw">let </span>texture_bind_group_layout =
+            device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
+                entries: <span class="kw-2">&amp;</span>[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: <span class="number">0</span>,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            multisampled: <span class="bool-val">false</span>,
+                            view_dimension: wgpu::TextureViewDimension::D2,
+                            sample_type: wgpu::TextureSampleType::Float { filterable: <span class="bool-val">true </span>},
+                        },
+                        count: <span class="prelude-val">None</span>,
                     },
-                    count: <span class="prelude-val">None</span>,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: <span class="number">1</span>,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: <span class="prelude-val">None</span>,
-                },
-            ],
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;texture_bind_group_layout&quot;</span>),
-        });
+                    wgpu::BindGroupLayoutEntry {
+                        binding: <span class="number">1</span>,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                        count: <span class="prelude-val">None</span>,
+                    },
+                ],
+                label: <span class="prelude-val">Some</span>(<span class="string">&quot;texture_bind_group_layout&quot;</span>),
+            });
 
         <span class="kw">let </span>diffuse_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
             layout: <span class="kw-2">&amp;</span>texture_bind_group_layout,
@@ -850,86 +840,60 @@
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;diffuse_bind_group&quot;</span>),
         });
 
-        <span class="kw">let </span>camera = Camera {
+        <span class="kw">let </span>camera = Camera::new(
             <span class="comment">// position the camera 1 unit up and 2 units back
             // +z is out of the screen
-            </span>eye: (<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>).into(),
+            </span>(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">2.0</span>).into(),
             <span class="comment">// have it look at the origin
-            </span>target: (<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>).into(),
+            </span>(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>).into(),
             <span class="comment">// which way is &quot;up&quot;
-            </span>up: cgmath::Vector3::unit_y(),
-            aspect: config.width <span class="kw">as </span>f32 / config.height <span class="kw">as </span>f32,
-            fovy: <span class="number">45.0</span>,
-            znear: <span class="number">0.1</span>,
-            zfar: <span class="number">100.0</span>,
-        };
-
-        <span class="kw">let </span><span class="kw-2">mut </span>camera_uniform = CameraUniform::new();
-        camera_uniform.update_view_proj(<span class="kw-2">&amp;</span>camera);
-
-        <span class="kw">let </span>camera_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Camera Buffer&quot;</span>),
-            contents: bytemuck::cast_slice(<span class="kw-2">&amp;</span>[camera_uniform]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
-
-        <span class="kw">let </span>camera_bind_group_layout =
-            device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
-                entries: <span class="kw-2">&amp;</span>[wgpu::BindGroupLayoutEntry {
-                    binding: <span class="number">0</span>,
-                    visibility: wgpu::ShaderStages::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: <span class="bool-val">false</span>,
-                        min_binding_size: <span class="prelude-val">None</span>,
-                    },
-                    count: <span class="prelude-val">None</span>,
-                }],
-                label: <span class="prelude-val">Some</span>(<span class="string">&quot;camera_bind_group_layout&quot;</span>),
-            });
-
-        <span class="kw">let </span>camera_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
-            layout: <span class="kw-2">&amp;</span>camera_bind_group_layout,
-            entries: <span class="kw-2">&amp;</span>[wgpu::BindGroupEntry {
-                binding: <span class="number">0</span>,
-                resource: camera_buffer.as_entire_binding(),
-            }],
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;camera_bind_group&quot;</span>),
-        });
-
-        <span class="kw">let </span>instances = (<span class="number">0</span>..NUM_INSTANCES_PER_ROW).flat_map(|z| {
-            (<span class="number">0</span>..NUM_INSTANCES_PER_ROW).map(<span class="kw">move </span>|x| {
-                <span class="kw">let </span>position = cgmath::Vector3 { x: x <span class="kw">as </span>f32, y: <span class="number">0.0</span>, z: z <span class="kw">as </span>f32 } - INSTANCE_DISPLACEMENT;
-
-                <span class="kw">let </span>rotation = <span class="kw">if </span>position.is_zero() {
-                    <span class="comment">// this is needed so an object at (0, 0, 0) won&#39;t get scaled to zero
-                    // as Quaternions can affect scale if they&#39;re not created correctly
-                    </span>cgmath::Quaternion::from_axis_angle(cgmath::Vector3::unit_z(), cgmath::Deg(<span class="number">0.0</span>))
-                } <span class="kw">else </span>{
-                    cgmath::Quaternion::from_axis_angle(position.normalize(), cgmath::Deg(<span class="number">45.0</span>))
-                };
-
-                Instance {
-                    position, rotation,
-                }
-            })
-        }).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-
-        <span class="kw">let </span>instance_data = instances.iter().map(Instance::to_raw).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="kw">let </span>instance_buffer = device.create_buffer_init(
-            <span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
-                label: <span class="prelude-val">Some</span>(<span class="string">&quot;Instance Buffer&quot;</span>),
-                contents: bytemuck::cast_slice(<span class="kw-2">&amp;</span>instance_data),
-                usage: wgpu::BufferUsages::VERTEX,
-            }
+            </span>cgmath::Vector3::unit_y(),
+            config.width <span class="kw">as </span>f32 / config.height <span class="kw">as </span>f32,
+            <span class="number">45.0</span>,
+            <span class="number">0.1</span>,
+            <span class="number">100.0</span>,
+            <span class="kw-2">&amp;</span>device,
         );
 
-        <span class="kw">let </span>depth_texture = texture::Texture::create_depth_texture(<span class="kw-2">&amp;</span>device, <span class="kw-2">&amp;</span>config, <span class="string">&quot;depth_texture&quot;</span>);
+        <span class="kw">let </span>instances = (<span class="number">0</span>..NUM_INSTANCES_PER_ROW)
+            .flat_map(|z| {
+                (<span class="number">0</span>..NUM_INSTANCES_PER_ROW).map(<span class="kw">move </span>|x| {
+                    <span class="kw">let </span>position = cgmath::Vector3 {
+                        x: x <span class="kw">as </span>f32,
+                        y: <span class="number">0.0</span>,
+                        z: z <span class="kw">as </span>f32,
+                    } - INSTANCE_DISPLACEMENT;
+
+                    <span class="kw">let </span>rotation = <span class="kw">if </span>position.is_zero() {
+                        <span class="comment">// this is needed so an object at (0, 0, 0) won&#39;t get scaled to zero
+                        // as Quaternions can affect scale if they&#39;re not created correctly
+                        </span>cgmath::Quaternion::from_axis_angle(
+                            cgmath::Vector3::unit_z(),
+                            cgmath::Deg(<span class="number">0.0</span>),
+                        )
+                    } <span class="kw">else </span>{
+                        cgmath::Quaternion::from_axis_angle(position.normalize(), cgmath::Deg(<span class="number">45.0</span>))
+                    };
+
+                    Instance { position, rotation }
+                })
+            })
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
+        <span class="kw">let </span>instance_data = instances.iter().map(Instance::to_raw).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>instance_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Instance Buffer&quot;</span>),
+            contents: bytemuck::cast_slice(<span class="kw-2">&amp;</span>instance_data),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
+        <span class="kw">let </span>depth_texture =
+            texture::Texture::create_depth_texture(<span class="kw-2">&amp;</span>device, <span class="kw-2">&amp;</span>config, <span class="string">&quot;depth_texture&quot;</span>);
 
         <span class="kw">let </span>render_pipeline_layout =
             device.create_pipeline_layout(<span class="kw-2">&amp;</span>wgpu::PipelineLayoutDescriptor {
                 label: <span class="prelude-val">Some</span>(<span class="string">&quot;Render Pipeline Layout&quot;</span>),
-                bind_group_layouts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>texture_bind_group_layout, <span class="kw-2">&amp;</span>camera_bind_group_layout],
+                bind_group_layouts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>texture_bind_group_layout, <span class="kw-2">&amp;</span>camera.camera_bind_group_layout],
                 push_constant_ranges: <span class="kw-2">&amp;</span>[],
             });
 
@@ -975,7 +939,7 @@
                 format: texture::Texture::DEPTH_FORMAT,
                 depth_write_enabled: <span class="bool-val">true</span>,
                 depth_compare: wgpu::CompareFunction::Less, <span class="comment">// 1.
-                </span>stencil: wgpu::StencilState::default(), <span class="comment">// 2.
+                </span>stencil: wgpu::StencilState::default(),     <span class="comment">// 2.
                 </span>bias: wgpu::DepthBiasState::default(),
             }),
             multisample: wgpu::MultisampleState {
@@ -1000,7 +964,7 @@
         });
         <span class="kw">let </span>num_indices = INDICES.len() <span class="kw">as </span>u32;
 
-        <span class="kw">let </span>camera_controller = CameraController::new(<span class="number">0.2</span>);
+        <span class="kw">let </span>blur = blur::Blur::new(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>device, <span class="kw-2">&amp;</span>queue);
 
         <span class="self">Self </span>{
             surface,
@@ -1016,14 +980,11 @@
             diffuse_bind_group,
             window,
             camera,
-            camera_uniform,
-            camera_buffer,
-            camera_bind_group,
-            camera_controller,
             last_frame_time: std::time::Instant::now(),
             instances,
             instance_buffer,
             depth_texture,
+            blur,
         }
     }
 
@@ -1037,21 +998,26 @@
             <span class="self">self</span>.config.width = new_size.width;
             <span class="self">self</span>.config.height = new_size.height;
             <span class="self">self</span>.surface.configure(<span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.config);
-            <span class="self">self</span>.depth_texture = texture::Texture::create_depth_texture(<span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.config, <span class="string">&quot;depth_texture&quot;</span>);
+            <span class="self">self</span>.depth_texture =
+                texture::Texture::create_depth_texture(<span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.config, <span class="string">&quot;depth_texture&quot;</span>);
+            <span class="self">self</span>.blur.resize(<span class="kw-2">&amp;</span><span class="self">self</span>.config, <span class="kw-2">&amp;</span><span class="self">self</span>.device);
         }
     }
 
     <span class="attr">#[allow(unused_variables)]
     </span><span class="kw">fn </span>input(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>WindowEvent) -&gt; bool {
-        <span class="self">self</span>.camera_controller.process_events(event)
+        <span class="self">self</span>.camera.camera_controller.process_events(event)
     }
-    
+
     <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>dt = <span class="self">self</span>.last_frame_time.elapsed().as_secs_f32();
         <span class="self">self</span>.last_frame_time = std::time::Instant::now();
-        <span class="self">self</span>.camera_controller.update_camera(<span class="kw-2">&amp;mut </span><span class="self">self</span>.camera, dt);
-        <span class="self">self</span>.camera_uniform.update_view_proj(<span class="kw-2">&amp;</span><span class="self">self</span>.camera);
-        <span class="self">self</span>.queue.write_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>.camera_buffer, <span class="number">0</span>, bytemuck::cast_slice(<span class="kw-2">&amp;</span>[<span class="self">self</span>.camera_uniform]));
+        <span class="self">self</span>.camera.update_camera(dt);
+        <span class="self">self</span>.queue.write_buffer(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.camera.camera_buffer,
+            <span class="number">0</span>,
+            bytemuck::cast_slice(<span class="kw-2">&amp;</span>[<span class="self">self</span>.camera.camera_uniform]),
+        );
     }
 
     <span class="kw">fn </span>render(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), wgpu::SurfaceError&gt; {
@@ -1059,7 +1025,17 @@
         <span class="kw">let </span>view = output
             .texture
             .create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
+        <span class="kw">let </span>medium_view = <span class="kw-2">&amp;</span><span class="self">self</span>.blur.texture_view;
+        <span class="self">self</span>.render_scene(medium_view);
+        <span class="self">self</span>.blur.render(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.queue);
+        output.present();
 
+        <span class="comment">// println!(&quot;FPS: {}&quot;, 1.0 / self.last_frame_time.elapsed().as_secs_f64());
+
+        </span><span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>render_scene(<span class="kw-2">&amp;</span><span class="self">self</span>, view: <span class="kw-2">&amp;</span>wgpu::TextureView) {
         <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self
             </span>.device
             .create_command_encoder(<span class="kw-2">&amp;</span>wgpu::CommandEncoderDescriptor {
@@ -1096,20 +1072,14 @@
 
             render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
             render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
-            render_pass.set_bind_group(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.camera_bind_group, <span class="kw-2">&amp;</span>[]);
+            render_pass.set_bind_group(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.camera.camera_bind_group, <span class="kw-2">&amp;</span>[]);
             render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
             render_pass.set_vertex_buffer(<span class="number">1</span>, <span class="self">self</span>.instance_buffer.slice(..));
             render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
 
             render_pass.draw_indexed(<span class="number">0</span>..<span class="self">self</span>.num_indices, <span class="number">0</span>, <span class="number">0</span>..<span class="self">self</span>.instances.len() <span class="kw">as _</span>);
         }
-
         <span class="self">self</span>.queue.submit(iter::once(encoder.finish()));
-        output.present();
-
-        <span class="comment">// println!(&quot;FPS: {}&quot;, 1.0 / self.last_frame_time.elapsed().as_secs_f64());
-
-        </span><span class="prelude-val">Ok</span>(())
     }
 }
 
