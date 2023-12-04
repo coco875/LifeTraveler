@@ -569,6 +569,7 @@
 <a href="#569" id="569">569</a>
 <a href="#570" id="570">570</a>
 <a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::iter;
 <span class="kw">use </span>wgpu::util::DeviceExt;
 <span class="kw">use </span>winit::{
@@ -1029,7 +1030,8 @@
             .create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
         <span class="kw">let </span>medium_view = <span class="kw-2">&amp;</span><span class="self">self</span>.blur.texture.create_view(<span class="kw-2">&amp;</span>Default::default());
         <span class="self">self</span>.render_scene(medium_view, <span class="kw-2">&amp;mut </span>encoder);
-        <span class="self">self</span>.blur.render(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;mut </span>encoder);
+        <span class="self">self</span>.blur
+            .render(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;</span>medium_view, <span class="kw-2">&amp;mut </span>encoder, <span class="kw-2">&amp;</span><span class="self">self</span>.device);
         <span class="self">self</span>.queue.submit(<span class="prelude-val">Some</span>(encoder.finish()));
         output.present();
 
