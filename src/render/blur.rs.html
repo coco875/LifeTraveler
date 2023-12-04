@@ -273,77 +273,7 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>image::GenericImageView;
-<span class="kw">use </span>wgpu::util::DeviceExt;
+</pre></div><pre class="rust"><code><span class="kw">use </span>wgpu::util::DeviceExt;
 
 <span class="attr">#[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -377,26 +307,25 @@
 <span class="kw">const </span>VERTICES: <span class="kw-2">&amp;</span>[Vertex] = <span class="kw-2">&amp;</span>[
     Vertex {
         position: [-<span class="number">1.0</span>, -<span class="number">1.0</span>, <span class="number">0.0</span>],
-        tex_coords: [<span class="number">0.0</span>, <span class="number">0.0</span>],
-    },
-    Vertex {
-        position: [-<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
         tex_coords: [<span class="number">0.0</span>, <span class="number">1.0</span>],
     },
     Vertex {
+        position: [-<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
+        tex_coords: [<span class="number">0.0</span>, <span class="number">0.0</span>],
+    },
+    Vertex {
         position: [<span class="number">1.0</span>, -<span class="number">1.0</span>, <span class="number">0.0</span>],
-        tex_coords: [<span class="number">1.0</span>, <span class="number">0.0</span>],
+        tex_coords: [<span class="number">1.0</span>, <span class="number">1.0</span>],
     },
     Vertex {
         position: [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>],
-        tex_coords: [<span class="number">1.0</span>, <span class="number">1.0</span>],
+        tex_coords: [<span class="number">1.0</span>, <span class="number">0.0</span>],
     },
 ];
 
 <span class="kw">const </span>INDICES: <span class="kw-2">&amp;</span>[u16] = <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>];
 
 <span class="kw">pub struct </span>Blur {
-    <span class="kw">pub </span>texture: wgpu::Texture,
     diffuse_bind_group: wgpu::BindGroup,
     render_pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
@@ -408,58 +337,13 @@
     <span class="kw">pub fn </span>new(
         config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration,
         device: <span class="kw-2">&amp;</span>wgpu::Device,
-        queue: <span class="kw-2">&amp;</span>wgpu::Queue,
+        texture_view: <span class="kw-2">&amp;</span>wgpu::TextureView,
     ) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>texture_desc = wgpu::TextureDescriptor {
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Texture&quot;</span>),
-            size: wgpu::Extent3d {
-                width: config.width,
-                height: config.height,
-                depth_or_array_layers: <span class="number">1</span>,
-            },
-            mip_level_count: <span class="number">1</span>,
-            sample_count: <span class="number">1</span>,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                | wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_DST,
-            view_formats: <span class="kw-2">&amp;</span>[],
-        };
 
-        <span class="kw">let </span>texture = device.create_texture(<span class="kw-2">&amp;</span>texture_desc);
-        <span class="kw">let </span>texture_view = texture.create_view(<span class="kw-2">&amp;</span>Default::default());
-
-        <span class="kw">let </span>diffuse_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;happy-tree.png&quot;</span>);
         <span class="comment">// let diffuse_texture =
         //     texture::Texture::from_bytes(&amp;device, &amp;queue, diffuse_bytes, &quot;happy-tree.png&quot;).unwrap();
 
-        </span><span class="kw">let </span>img = image::load_from_memory(diffuse_bytes).unwrap();
-        <span class="kw">let </span>rgba = img.as_rgba8().unwrap();
-        <span class="kw">let </span>dimensions = img.dimensions();
-        <span class="kw">let </span>size = wgpu::Extent3d {
-            width: dimensions.<span class="number">0</span>,
-            height: dimensions.<span class="number">1</span>,
-            depth_or_array_layers: <span class="number">1</span>,
-        };
-
-        queue.write_texture(
-            wgpu::ImageCopyTexture {
-                aspect: wgpu::TextureAspect::All,
-                texture: <span class="kw-2">&amp;</span>texture,
-                mip_level: <span class="number">0</span>,
-                origin: wgpu::Origin3d::ZERO,
-            },
-            <span class="kw-2">&amp;</span>rgba,
-            wgpu::ImageDataLayout {
-                offset: <span class="number">0</span>,
-                bytes_per_row: <span class="prelude-val">Some</span>(<span class="number">4 </span>* dimensions.<span class="number">0</span>),
-                rows_per_image: <span class="prelude-val">Some</span>(dimensions.<span class="number">1</span>),
-            },
-            size,
-        );
-
-        <span class="kw">let </span>sampler = device.create_sampler(<span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
+        </span><span class="kw">let </span>sampler = device.create_sampler(<span class="kw-2">&amp;</span>wgpu::SamplerDescriptor {
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Sampler&quot;</span>),
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
@@ -496,7 +380,7 @@
             entries: <span class="kw-2">&amp;</span>[
                 wgpu::BindGroupEntry {
                     binding: <span class="number">0</span>,
-                    resource: wgpu::BindingResource::TextureView(<span class="kw-2">&amp;</span>texture_view),
+                    resource: wgpu::BindingResource::TextureView(texture_view),
                 },
                 wgpu::BindGroupEntry {
                     binding: <span class="number">1</span>,
@@ -575,7 +459,6 @@
         <span class="kw">let </span>num_indices = INDICES.len() <span class="kw">as </span>u32;
 
         <span class="self">Self </span>{
-            texture,
             diffuse_bind_group,
             render_pipeline,
             vertex_buffer,
@@ -584,34 +467,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>resize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, config: <span class="kw-2">&amp;</span>wgpu::SurfaceConfiguration, device: <span class="kw-2">&amp;</span>wgpu::Device) {
-        <span class="kw">let </span>texture_desc = wgpu::TextureDescriptor {
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Texture&quot;</span>),
-            size: wgpu::Extent3d {
-                width: config.width,
-                height: config.height,
-                depth_or_array_layers: <span class="number">1</span>,
-            },
-            mip_level_count: <span class="number">1</span>,
-            sample_count: <span class="number">1</span>,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                | wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_DST,
-            view_formats: <span class="kw-2">&amp;</span>[],
-        };
-
-        <span class="self">self</span>.texture = device.create_texture(<span class="kw-2">&amp;</span>texture_desc);
-    }
-
-    <span class="kw">pub fn </span>render(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        view: <span class="kw-2">&amp;</span>wgpu::TextureView,
-        blur_view: <span class="kw-2">&amp;</span>wgpu::TextureView,
-        encoder: <span class="kw-2">&amp;mut </span>wgpu::CommandEncoder,
-        device: <span class="kw-2">&amp;</span>wgpu::Device,
-    ) {
+    <span class="kw">pub fn </span>resize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, device: <span class="kw-2">&amp;</span>wgpu::Device, texture_view: <span class="kw-2">&amp;</span>wgpu::TextureView) {
         <span class="kw">let </span>bind_group_layout = device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
             entries: <span class="kw-2">&amp;</span>[
                 wgpu::BindGroupLayoutEntry {
@@ -644,12 +500,12 @@
             ..Default::default()
         });
 
-        <span class="kw">let </span>diffuse_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
+        <span class="self">self</span>.diffuse_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
             layout: <span class="kw-2">&amp;</span>bind_group_layout,
             entries: <span class="kw-2">&amp;</span>[
                 wgpu::BindGroupEntry {
                     binding: <span class="number">0</span>,
-                    resource: wgpu::BindingResource::TextureView(<span class="kw-2">&amp;</span>blur_view),
+                    resource: wgpu::BindingResource::TextureView(<span class="kw-2">&amp;</span>texture_view),
                 },
                 wgpu::BindGroupEntry {
                     binding: <span class="number">1</span>,
@@ -658,7 +514,13 @@
             ],
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;blur_texture_bind_group&quot;</span>),
         });
+    }
 
+    <span class="kw">pub fn </span>render(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        view: <span class="kw-2">&amp;</span>wgpu::TextureView,
+        encoder: <span class="kw-2">&amp;mut </span>wgpu::CommandEncoder,
+    ) {
         <span class="kw">let </span><span class="kw-2">mut </span>render_pass = encoder.begin_render_pass(<span class="kw-2">&amp;</span>wgpu::RenderPassDescriptor {
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;Blur Render Pass&quot;</span>),
             color_attachments: <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(wgpu::RenderPassColorAttachment {
@@ -680,7 +542,7 @@
         });
 
         render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
-        render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span>diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
         render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
         render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(<span class="number">0</span>..<span class="self">self</span>.num_indices, <span class="number">0</span>, <span class="number">0</span>..<span class="number">1</span>);
