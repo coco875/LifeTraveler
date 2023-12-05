@@ -5,7 +5,6 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-mod blur;
 mod camera;
 mod texture;
 use camera::Camera;
@@ -153,7 +152,6 @@ struct State {
     instances: Vec<Instance>,
     instance_buffer: wgpu::Buffer,
     depth_texture: texture::Texture,
-    blur: blur::Blur,
     // post processing
     texture_1: wgpu::Texture,
     texture_1_view: wgpu::TextureView,
@@ -434,8 +432,6 @@ impl State {
         let texture_2 = device.create_texture(&texture_2_desc);
         let texture_2_view = texture_2.create_view(&Default::default());
 
-        let blur = blur::Blur::new(&config, &device, &texture_1_view);
-
         Self {
             surface,
             device,
@@ -454,7 +450,6 @@ impl State {
             instances,
             instance_buffer,
             depth_texture,
-            blur,
             texture_1,
             texture_1_view,
             texture_2,
@@ -517,7 +512,6 @@ impl State {
             self.depth_texture =
                 texture::Texture::create_depth_texture(&self.device, &self.config, "depth_texture");
             self.redo_texture();
-            self.blur.resize(&self.device, &self.texture_1_view);
         }
     }
 
@@ -547,8 +541,7 @@ impl State {
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-        self.render_scene(&self.texture_1_view, &mut encoder);
-        self.blur.render(&view, &mut encoder);
+        self.render_scene(&view, &mut encoder);
         self.queue.submit(Some(encoder.finish()));
         output.present();
 
