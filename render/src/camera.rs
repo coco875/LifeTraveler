@@ -39,7 +39,8 @@ impl Camera {
         let view = cgmath::Matrix4::look_at_rh(eye, target, up);
 
         let proj = cgmath::perspective(cgmath::Deg(fovy), aspect, znear, zfar);
-        camera_uniform.view_proj = (OPENGL_TO_WGPU_MATRIX * proj * view).into();
+        let view_proj = OPENGL_TO_WGPU_MATRIX * proj * view;
+        camera_uniform.view_proj = (view_proj).into();
 
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Camera Buffer"),

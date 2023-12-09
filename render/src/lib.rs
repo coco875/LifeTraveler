@@ -5,6 +5,7 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
+mod depth;
 mod camera;
 mod texture;
 use camera::Camera;
@@ -146,12 +147,14 @@ struct State {
     #[allow(dead_code)]
     diffuse_texture: texture::Texture,
     diffuse_bind_group: wgpu::BindGroup,
+    vertex_bind_group: wgpu::BindGroup,
     window: Window,
     camera: Camera,
     last_frame_time: std::time::Instant,
     instances: Vec<Instance>,
     instance_buffer: wgpu::Buffer,
     depth_texture: texture::Texture,
+    depth: depth::Depth,
     // post processing
     texture_1: wgpu::Texture,
     texture_1_view: wgpu::TextureView,
@@ -223,6 +226,42 @@ impl State {
             view_formats: vec![],
         };
         surface.configure(&device, &config);
+        
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(VERTICES),
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::STORAGE,
+        });
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Index Buffer"),
+            contents: bytemuck::cast_slice(INDICES),
+            usage: wgpu::BufferUsages::INDEX,
+        });
+        let num_indices = INDICES.len() as u32;
+        
+        let vertex_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT | wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Storage { read_only: true },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+                label: Some("vertex_bind_group_layout"),
+            });
+        
+        let vertex_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &vertex_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: vertex_buffer.as_entire_binding(),
+            }],
+            label: Some("vertex_bind_group"),
+        });
 
         // Load the texture
         let diffuse_bytes = include_bytes!("happy-tree.png");
@@ -252,22 +291,22 @@ impl State {
                 ],
                 label: Some("texture_bind_group_layout"),
             });
-
-        let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &texture_bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&diffuse_texture.view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&diffuse_texture.sampler),
-                },
-            ],
-            label: Some("diffuse_bind_group"),
-        });
-
+            
+            let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+                layout: &texture_bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: wgpu::BindingResource::TextureView(&diffuse_texture.view),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 1,
+                        resource: wgpu::BindingResource::Sampler(&diffuse_texture.sampler),
+                    },
+                    ],
+                    label: Some("diffuse_bind_group"),
+                });
+                
         let camera = Camera::new(
             // position the camera 1 unit up and 2 units back
             // +z is out of the screen
@@ -321,7 +360,7 @@ impl State {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[&texture_bind_group_layout, &camera.camera_bind_group_layout],
+                bind_group_layouts: &[&vertex_bind_group_layout ,&texture_bind_group_layout, &camera.camera_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
@@ -380,17 +419,6 @@ impl State {
             multiview: None,
         });
 
-        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(VERTICES),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
-        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(INDICES),
-            usage: wgpu::BufferUsages::INDEX,
-        });
-        let num_indices = INDICES.len() as u32;
 
         let texture_1_desc = wgpu::TextureDescriptor {
             label: Some("Texture 1"),
@@ -432,6 +460,8 @@ impl State {
         let texture_2 = device.create_texture(&texture_2_desc);
         let texture_2_view = texture_2.create_view(&Default::default());
 
+        let depth = depth::Depth::new(&config, &device, &texture_1_view, &depth_texture.view);
+
         Self {
             surface,
             device,
@@ -444,12 +474,14 @@ impl State {
             num_indices,
             diffuse_texture,
             diffuse_bind_group,
+            vertex_bind_group,
             window,
             camera,
             last_frame_time: std::time::Instant::now(),
             instances,
             instance_buffer,
             depth_texture,
+            depth,
             texture_1,
             texture_1_view,
             texture_2,
@@ -512,6 +544,7 @@ impl State {
             self.depth_texture =
                 texture::Texture::create_depth_texture(&self.device, &self.config, "depth_texture");
             self.redo_texture();
+            self.depth.resize(&self.device, &self.texture_1_view, &self.depth_texture.view);
         }
     }
 
@@ -542,6 +575,7 @@ impl State {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
         self.render_scene(&view, &mut encoder);
+        // self.depth.render(&view, &mut encoder);
         self.queue.submit(Some(encoder.finish()));
         output.present();
 
@@ -579,8 +613,9 @@ impl State {
         });
 
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
-        render_pass.set_bind_group(1, &self.camera.camera_bind_group, &[]);
+        render_pass.set_bind_group(0, &self.vertex_bind_group, &[]);
+        render_pass.set_bind_group(1, &self.diffuse_bind_group, &[]);
+        render_pass.set_bind_group(2, &self.camera.camera_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
@@ -589,7 +624,6 @@ impl State {
     }
 }
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
 pub async fn run() {
     env_logger::init();
 
