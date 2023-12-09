@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `render/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../render/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `render/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="render" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.1 (a28077b28 2023-12-04)" data-channel="1.74.1" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../render/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -652,6 +652,40 @@
 <a href="#652" id="652">652</a>
 <a href="#653" id="653">653</a>
 <a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>wgpu::util::DeviceExt;
 <span class="kw">use </span>winit::{
     event::<span class="kw-2">*</span>,
@@ -659,6 +693,7 @@
     window::{Window, WindowBuilder},
 };
 
+<span class="kw">mod </span>depth;
 <span class="kw">mod </span>camera;
 <span class="kw">mod </span>texture;
 <span class="kw">use </span>camera::Camera;
@@ -800,12 +835,14 @@
     <span class="attr">#[allow(dead_code)]
     </span>diffuse_texture: texture::Texture,
     diffuse_bind_group: wgpu::BindGroup,
+    vertex_bind_group: wgpu::BindGroup,
     window: Window,
     camera: Camera,
     last_frame_time: std::time::Instant,
     instances: Vec&lt;Instance&gt;,
     instance_buffer: wgpu::Buffer,
     depth_texture: texture::Texture,
+    depth: depth::Depth,
     <span class="comment">// post processing
     </span>texture_1: wgpu::Texture,
     texture_1_view: wgpu::TextureView,
@@ -877,6 +914,42 @@
             view_formats: <span class="macro">vec!</span>[],
         };
         surface.configure(<span class="kw-2">&amp;</span>device, <span class="kw-2">&amp;</span>config);
+        
+        <span class="kw">let </span>vertex_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Vertex Buffer&quot;</span>),
+            contents: bytemuck::cast_slice(VERTICES),
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::STORAGE,
+        });
+        <span class="kw">let </span>index_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Index Buffer&quot;</span>),
+            contents: bytemuck::cast_slice(INDICES),
+            usage: wgpu::BufferUsages::INDEX,
+        });
+        <span class="kw">let </span>num_indices = INDICES.len() <span class="kw">as </span>u32;
+        
+        <span class="kw">let </span>vertex_bind_group_layout =
+            device.create_bind_group_layout(<span class="kw-2">&amp;</span>wgpu::BindGroupLayoutDescriptor {
+                entries: <span class="kw-2">&amp;</span>[wgpu::BindGroupLayoutEntry {
+                    binding: <span class="number">0</span>,
+                    visibility: wgpu::ShaderStages::FRAGMENT | wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Storage { read_only: <span class="bool-val">true </span>},
+                        has_dynamic_offset: <span class="bool-val">false</span>,
+                        min_binding_size: <span class="prelude-val">None</span>,
+                    },
+                    count: <span class="prelude-val">None</span>,
+                }],
+                label: <span class="prelude-val">Some</span>(<span class="string">&quot;vertex_bind_group_layout&quot;</span>),
+            });
+        
+        <span class="kw">let </span>vertex_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
+            layout: <span class="kw-2">&amp;</span>vertex_bind_group_layout,
+            entries: <span class="kw-2">&amp;</span>[wgpu::BindGroupEntry {
+                binding: <span class="number">0</span>,
+                resource: vertex_buffer.as_entire_binding(),
+            }],
+            label: <span class="prelude-val">Some</span>(<span class="string">&quot;vertex_bind_group&quot;</span>),
+        });
 
         <span class="comment">// Load the texture
         </span><span class="kw">let </span>diffuse_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;happy-tree.png&quot;</span>);
@@ -906,22 +979,22 @@
                 ],
                 label: <span class="prelude-val">Some</span>(<span class="string">&quot;texture_bind_group_layout&quot;</span>),
             });
-
-        <span class="kw">let </span>diffuse_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
-            layout: <span class="kw-2">&amp;</span>texture_bind_group_layout,
-            entries: <span class="kw-2">&amp;</span>[
-                wgpu::BindGroupEntry {
-                    binding: <span class="number">0</span>,
-                    resource: wgpu::BindingResource::TextureView(<span class="kw-2">&amp;</span>diffuse_texture.view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: <span class="number">1</span>,
-                    resource: wgpu::BindingResource::Sampler(<span class="kw-2">&amp;</span>diffuse_texture.sampler),
-                },
-            ],
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;diffuse_bind_group&quot;</span>),
-        });
-
+            
+            <span class="kw">let </span>diffuse_bind_group = device.create_bind_group(<span class="kw-2">&amp;</span>wgpu::BindGroupDescriptor {
+                layout: <span class="kw-2">&amp;</span>texture_bind_group_layout,
+                entries: <span class="kw-2">&amp;</span>[
+                    wgpu::BindGroupEntry {
+                        binding: <span class="number">0</span>,
+                        resource: wgpu::BindingResource::TextureView(<span class="kw-2">&amp;</span>diffuse_texture.view),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: <span class="number">1</span>,
+                        resource: wgpu::BindingResource::Sampler(<span class="kw-2">&amp;</span>diffuse_texture.sampler),
+                    },
+                    ],
+                    label: <span class="prelude-val">Some</span>(<span class="string">&quot;diffuse_bind_group&quot;</span>),
+                });
+                
         <span class="kw">let </span>camera = Camera::new(
             <span class="comment">// position the camera 1 unit up and 2 units back
             // +z is out of the screen
@@ -975,7 +1048,7 @@
         <span class="kw">let </span>render_pipeline_layout =
             device.create_pipeline_layout(<span class="kw-2">&amp;</span>wgpu::PipelineLayoutDescriptor {
                 label: <span class="prelude-val">Some</span>(<span class="string">&quot;Render Pipeline Layout&quot;</span>),
-                bind_group_layouts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>texture_bind_group_layout, <span class="kw-2">&amp;</span>camera.camera_bind_group_layout],
+                bind_group_layouts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>vertex_bind_group_layout ,<span class="kw-2">&amp;</span>texture_bind_group_layout, <span class="kw-2">&amp;</span>camera.camera_bind_group_layout],
                 push_constant_ranges: <span class="kw-2">&amp;</span>[],
             });
 
@@ -1034,17 +1107,6 @@
             </span>multiview: <span class="prelude-val">None</span>,
         });
 
-        <span class="kw">let </span>vertex_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Vertex Buffer&quot;</span>),
-            contents: bytemuck::cast_slice(VERTICES),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
-        <span class="kw">let </span>index_buffer = device.create_buffer_init(<span class="kw-2">&amp;</span>wgpu::util::BufferInitDescriptor {
-            label: <span class="prelude-val">Some</span>(<span class="string">&quot;Index Buffer&quot;</span>),
-            contents: bytemuck::cast_slice(INDICES),
-            usage: wgpu::BufferUsages::INDEX,
-        });
-        <span class="kw">let </span>num_indices = INDICES.len() <span class="kw">as </span>u32;
 
         <span class="kw">let </span>texture_1_desc = wgpu::TextureDescriptor {
             label: <span class="prelude-val">Some</span>(<span class="string">&quot;Texture 1&quot;</span>),
@@ -1086,6 +1148,8 @@
         <span class="kw">let </span>texture_2 = device.create_texture(<span class="kw-2">&amp;</span>texture_2_desc);
         <span class="kw">let </span>texture_2_view = texture_2.create_view(<span class="kw-2">&amp;</span>Default::default());
 
+        <span class="kw">let </span>depth = depth::Depth::new(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>device, <span class="kw-2">&amp;</span>texture_1_view, <span class="kw-2">&amp;</span>depth_texture.view);
+
         <span class="self">Self </span>{
             surface,
             device,
@@ -1098,12 +1162,14 @@
             num_indices,
             diffuse_texture,
             diffuse_bind_group,
+            vertex_bind_group,
             window,
             camera,
             last_frame_time: std::time::Instant::now(),
             instances,
             instance_buffer,
             depth_texture,
+            depth,
             texture_1,
             texture_1_view,
             texture_2,
@@ -1166,6 +1232,7 @@
             <span class="self">self</span>.depth_texture =
                 texture::Texture::create_depth_texture(<span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.config, <span class="string">&quot;depth_texture&quot;</span>);
             <span class="self">self</span>.redo_texture();
+            <span class="self">self</span>.depth.resize(<span class="kw-2">&amp;</span><span class="self">self</span>.device, <span class="kw-2">&amp;</span><span class="self">self</span>.texture_1_view, <span class="kw-2">&amp;</span><span class="self">self</span>.depth_texture.view);
         }
     }
 
@@ -1196,7 +1263,8 @@
             .texture
             .create_view(<span class="kw-2">&amp;</span>wgpu::TextureViewDescriptor::default());
         <span class="self">self</span>.render_scene(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;mut </span>encoder);
-        <span class="self">self</span>.queue.submit(<span class="prelude-val">Some</span>(encoder.finish()));
+        <span class="comment">// self.depth.render(&amp;view, &amp;mut encoder);
+        </span><span class="self">self</span>.queue.submit(<span class="prelude-val">Some</span>(encoder.finish()));
         output.present();
 
         <span class="comment">// println!(&quot;FPS: {}&quot;, 1.0 / self.last_frame_time.elapsed().as_secs_f64());
@@ -1233,8 +1301,9 @@
         });
 
         render_pass.set_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.render_pipeline);
-        render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
-        render_pass.set_bind_group(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.camera.camera_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_bind_group(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.vertex_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_bind_group(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.diffuse_bind_group, <span class="kw-2">&amp;</span>[]);
+        render_pass.set_bind_group(<span class="number">2</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.camera.camera_bind_group, <span class="kw-2">&amp;</span>[]);
         render_pass.set_vertex_buffer(<span class="number">0</span>, <span class="self">self</span>.vertex_buffer.slice(..));
         render_pass.set_vertex_buffer(<span class="number">1</span>, <span class="self">self</span>.instance_buffer.slice(..));
         render_pass.set_index_buffer(<span class="self">self</span>.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
@@ -1243,8 +1312,7 @@
     }
 }
 
-<span class="attr">#[cfg_attr(target_arch = <span class="string">&quot;wasm32&quot;</span>, wasm_bindgen(start))]
-</span><span class="kw">pub async fn </span>run() {
+<span class="kw">pub async fn </span>run() {
     env_logger::init();
 
     <span class="kw">let </span>event_loop = EventLoop::new();

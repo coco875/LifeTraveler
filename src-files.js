@@ -7,7 +7,7 @@ var srcIndex = JSON.parse('{\
 "life_traveler":["",[],["main.rs"]],\
 "macro_register":["",[],["lib.rs"]],\
 "region":["",[],["lib.rs"]],\
-"render":["",[],["camera.rs","lib.rs","texture.rs"]],\
+"render":["",[],["camera.rs","depth.rs","lib.rs","texture.rs"]],\
 "world":["",[],["lib.rs"]]\
 }');
 createSrcSidebar();
