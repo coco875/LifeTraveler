@@ -57,13 +57,13 @@ pub fn register(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let name_function = quote::format_ident!("load_{}", kind_register.to_lowercase());
 
     let load_function = quote! {
-        pub use core::default_function::#name_function as load;
+        pub use self::core::default_function::#name_function as load;
     };
 
     let name_function = quote::format_ident!("new_{}", kind_register.to_lowercase());
 
     let new_function = quote! {
-        pub use core::default_function::#name_function as new;
+        pub use self::core::default_function::#name_function as new;
     };
 
     let name_variable = quote! {

@@ -2,6 +2,7 @@
 
 use item::SimpleItem;
 use macro_register::{add_lang, add_tag, add_tag_from_file, register, register_complement};
+use crate as core;
 
 #[register(Item)]
 pub mod StoneItem {

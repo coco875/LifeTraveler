@@ -2,6 +2,7 @@
 
 use block::SimpleBlock;
 use macro_register::{add_lang, add_lang_from_file, add_tag, register};
+use crate as core;
 
 #[register(Block)]
 pub mod AirBlock {
