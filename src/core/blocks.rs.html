@@ -41,10 +41,12 @@
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Blocks are the basic elements of the game. They are used to build the world and to craft items.
 
 </span><span class="kw">use </span>block::SimpleBlock;
 <span class="kw">use </span>macro_register::{add_lang, add_lang_from_file, add_tag, register};
+<span class="kw">use crate as </span>core;
 
 <span class="attr">#[register(Block)]
 </span><span class="kw">pub mod </span>AirBlock {

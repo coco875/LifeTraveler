@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["blocks","items","register"]};
+window.SIDEBAR_ITEMS = {"mod":["blocks","default_function","items","register"]};

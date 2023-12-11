@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["load","new"],"static":["COLOR","NAME"]};
+window.SIDEBAR_ITEMS = {"static":["COLOR","NAME"]};

@@ -1,7 +1,7 @@
 var srcIndex = JSON.parse('{\
 "block":["",[],["lib.rs"]],\
 "chunk":["",[],["lib.rs"]],\
-"core":["",[["register",[],["blocks.rs","items.rs"]]],["blocks.rs","items.rs","lib.rs","register.rs"]],\
+"core":["",[["register",[],["blocks.rs","items.rs"]]],["blocks.rs","default_function.rs","items.rs","lib.rs","register.rs"]],\
 "item":["",[],["lib.rs"]],\
 "lang":["",[],["lib.rs"]],\
 "life_traveler":["",[],["main.rs"]],\
